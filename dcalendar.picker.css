@@ -1,0 +1,67 @@
+/*!Don't remove this!
+ * jQuery DCalendar and DCalendar Picker plugin styles
+ * 
+ * Author: Dionlee Uy
+ * Email: dionleeuy@gmail.com
+ *
+ * Date: Mon Mar 2 2013
+ */
+.calendar {
+	position: relative;
+	font-family: 'Segoe UI';
+	font-size: 12px;
+	border-collapse: collapse;
+	margin: 0; padding: 0;
+	z-index: 4;
+	border:1px solid #D5D5D5;
+	width: 250px;
+	color: #000;
+	text-align: center;
+	background-color: #FFF;
+}
+.calendar th {
+	padding: 4px;
+	width: 25px;
+}
+.calendar td {
+	text-align: right;
+	padding: 0 2px;
+}
+.calendar span {
+	padding: 4px; display: block;
+}
+.calendar .month {
+	padding: 15px;
+}
+.calendar .pMDate, .calendar .nMDate { color: #AAA; }
+.calendar .date, .calendar .pMDate, .calendar .nMDate, .calendar .month { cursor: pointer; }
+.calendar .date:hover, .calendar .pMDate:hover, .calendar .nMDate:hover, .calendar .month:hover { background-color: #E2E2E2; }
+.calendar .date:active, .calendar .pMDate:active, .calendar .nMDate:active, .calendar .month:active { background-color: #D8D8D8; }
+.calendar .selected {
+	border: 1px dashed #3B5998;
+}
+.calendar tr:first-child th {
+	background-color: #FFF;
+	font-size: 14px;
+}
+.calendar tr:first-child th { cursor: pointer; color:#000; }
+.calendar tr:first-child th:hover { color:#3B5998; }
+.calendar tr:first-child th:active { background-color: #CCC; }
+.calendar thead tr:nth-child(2){ background-color: #EEE; }
+.calendar #prev, .calendar #next {
+	font-family: 'Times New Roman';
+	font-size: 20px;
+	padding: 0;
+}
+.calendar #today {
+	text-align: center; cursor: pointer;
+	color: #3B5998; padding: 4px;
+	border-top:1px solid #D5D5D5; 
+}
+.calendar #today:hover { color: #80A7DD; }
+.calendar #today:active { color: #000; }
+.calendar #currDay { background-color: #3B5998; color:#FFF; }
+.datepicker {
+	background: url('./icon.png') transparent right no-repeat;
+	background-size: contain;
+}
