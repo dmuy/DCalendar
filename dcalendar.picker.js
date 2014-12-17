@@ -25,7 +25,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
         this.date = this.today;		//current selected date, default is today
         this.viewMode = 'days';
         this.options = options;
-        this.selected = this.date.getMonth().toString() + "/" + this.date.getDate() + "/" + this.date.getFullYear();
+        this.selected = this.date.getMonth() + 1 + "/" + this.date.getDate() + "/" + this.date.getFullYear();
         if (options.mode == 'calendar')
             this.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>');
         else if (options.mode == 'datepicker')
