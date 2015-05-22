@@ -8,20 +8,21 @@
  */
 .calendar {
 	position: relative;
-	font-family: 'Segoe UI' !important;
-	font-size: 12px !important;
+	font-family: 'Segoe UI';
+	font-size: 12px;
 	border-collapse: collapse;
 	margin: 0; padding: 0;
-	z-index: 1;
-	border:1px solid rgba(0,0,0,0.3);
+	z-index: 4;
+	border:1px solid #D5D5D5;
 	width: 250px;
-	color: #000 !important;
-	text-align: center !important;
+	color: #000;
+	text-align: center;
 	background-color: #FFF;
 }
 .calendar th {
 	padding: 4px;
 	width: 25px;
+	text-align: center;
 }
 .calendar td {
 	text-align: right;
@@ -49,7 +50,7 @@
 .calendar tr:first-child th:active { background-color: #CCC; }
 .calendar thead tr:nth-child(2){ background-color: #EEE; }
 .calendar #prev, .calendar #next {
-	font-family: 'Times New Roman' !important;
+	font-family: 'Times New Roman';
 	font-size: 20px;
 	padding: 0;
 }
@@ -61,7 +62,7 @@
 .calendar #today:hover { color: #80A7DD; }
 .calendar #today:active { color: #000; }
 .calendar #currDay { background-color: #3B5998; color:#FFF; }
-input.datepicker {
+.datepicker {
 	background: url('./icon.png') transparent right no-repeat;
 	background-size: contain;
 }
