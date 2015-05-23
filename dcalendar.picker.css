@@ -13,42 +13,50 @@
 	border-collapse: collapse;
 	margin: 0; padding: 0;
 	z-index: 4;
-	border:1px solid #D5D5D5;
+	border:1px solid rgba(0,0,0,0.08);
 	width: 250px;
 	color: #000;
 	text-align: center;
 	background-color: #FFF;
 }
-.calendar th {
-	padding: 4px;
-	width: 25px;
-	text-align: center;
-}
+.calendar th,
 .calendar td {
-	text-align: right;
-	padding: 0 2px;
+	text-align: center;
+	-webki-ttransition: all 0.3s ease;
+	-moz-transition: all 0.3s ease;
+	transition: all 0.3s ease;
+}
+.calendar th:first-child,
+.calendar td:first-child {
+	margin-left: 5px;
 }
 .calendar span {
-	padding: 4px; display: block;
+	padding: 6px 4px; 
+	display: block;
 }
 .calendar .month {
 	padding: 15px;
 }
+
 .calendar .pMDate, .calendar .nMDate { color: #AAA; }
 .calendar .date, .calendar .pMDate, .calendar .nMDate, .calendar .month { cursor: pointer; }
 .calendar .date:hover, .calendar .pMDate:hover, .calendar .nMDate:hover, .calendar .month:hover { background-color: #E2E2E2; }
-.calendar .date:active, .calendar .pMDate:active, .calendar .nMDate:active, .calendar .month:active { background-color: #D8D8D8; }
-.calendar .selected {
-	border: 1px dashed #3B5998;
+.calendar .date:active, .calendar .pMDate:active, .calendar .nMDate:active, .calendar .month:active { background-color: #22A7F0; color: #FFF; }
+.calendar .date.selected {
+	background-color: #22A7F0;
+	color: #FFF;
 }
+
 .calendar tr:first-child th {
 	background-color: #FFF;
+	padding: 4px;
+	padding-top: 8px;
 	font-size: 14px;
 }
 .calendar tr:first-child th { cursor: pointer; color:#000; }
-.calendar tr:first-child th:hover { color:#3B5998; }
-.calendar tr:first-child th:active { background-color: #CCC; }
-.calendar thead tr:nth-child(2){ background-color: #EEE; }
+.calendar tr:first-child th:hover { color:#22A7F0; }
+.calendar tr:first-child th:active { color: #22A7F0; }
+.calendar thead tr:nth-child(2) th { color: grey; padding: 8px 3px; }
 .calendar #prev, .calendar #next {
 	font-family: 'Times New Roman';
 	font-size: 20px;
@@ -56,12 +64,11 @@
 }
 .calendar #today {
 	text-align: center; cursor: pointer;
-	color: #3B5998; padding: 4px;
-	border-top:1px solid #D5D5D5; 
+	color: #22A7F0; padding: 6px;
 }
 .calendar #today:hover { color: #80A7DD; }
 .calendar #today:active { color: #000; }
-.calendar #currDay { background-color: #3B5998; color:#FFF; }
+.calendar #currDay { color:#22A7F0; }
 .datepicker {
 	background: url('./icon.png') transparent right no-repeat;
 	background-size: contain;

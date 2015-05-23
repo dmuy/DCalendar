@@ -1,5 +1,5 @@
 /* -- DO NOT REMOVE --
- * jQuery DCalendar 1.0 and DCalendar Picker 1.1 plugin
+ * jQuery DCalendar 1.1 and DCalendar Picker 1.1 plugin
  * 
  * Author: Dionlee Uy
  * Email: dionleeuy@gmail.com
@@ -27,9 +27,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		this.options = options;
 		this.selected = this.date.getMonth().toString() + "/" + this.date.getDate() + "/" + this.date.getFullYear();
 		if(options.mode == 'calendar')
-			this.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>');
-		else if (options.mode == 'datepicker')
 			this.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr></thead>');
+		else if (options.mode == 'datepicker')
+			this.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>S</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th></tr></thead>');
 		this.tHead.find('#currM').text(months[this.today.getMonth()] +" " + this.today.getFullYear());
 		this.calendar.prepend(this.tHead);
 		var that = this;
@@ -123,9 +123,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			that.calendar.empty();
 			if(mode == "days"){
 				if(that.options.mode == 'calendar')
-					that.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>Sun</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>');
-				else if (that.options.mode == 'datepicker')
 					that.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr></thead>');
+				else if (that.options.mode == 'datepicker')
+					that.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>S</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th></tr></thead>');
 				that.tHead.find('#currM').text(months[that.date.getMonth()] +" " + that.date.getFullYear());
 				that.calendar.append(that.tHead);
 				for(var i=1; i<=6; i++){
