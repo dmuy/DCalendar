@@ -8,7 +8,7 @@
  */
 .calendar {
 	position: relative;
-	font-family: 'Segoe UI';
+	font-family: 'Century Gothic','Segoe UI', Calibri, Arial;
 	font-size: 12px;
 	border-collapse: collapse;
 	margin: 0; padding: 0;
@@ -42,9 +42,9 @@
 .calendar .date, .calendar .pMDate, .calendar .nMDate, .calendar .month { cursor: pointer; }
 .calendar .date:hover, .calendar .pMDate:hover, .calendar .nMDate:hover, .calendar .month:hover { background-color: #E2E2E2; }
 .calendar .date:active, .calendar .pMDate:active, .calendar .nMDate:active, .calendar .month:active { background-color: #22A7F0; color: #FFF; }
-.calendar .date.selected {
-	background-color: #22A7F0;
-	color: #FFF;
+.calendar .selected {
+	background-color: #22A7F0 !important;
+	color: #FFF !important;
 }
 
 .calendar tr:first-child th {
@@ -56,7 +56,7 @@
 .calendar tr:first-child th { cursor: pointer; color:#000; }
 .calendar tr:first-child th:hover { color:#22A7F0; }
 .calendar tr:first-child th:active { color: #22A7F0; }
-.calendar thead tr:nth-child(2) th { color: grey; padding: 8px 3px; }
+.calendar thead tr:nth-child(2) th { color: #555; padding: 8px 3px; }
 .calendar #prev, .calendar #next {
 	font-family: 'Times New Roman';
 	font-size: 20px;
@@ -64,7 +64,7 @@
 }
 .calendar #today {
 	text-align: center; cursor: pointer;
-	color: #22A7F0; padding: 6px;
+	color: #22A7F0; padding: 10px 6px;
 }
 .calendar #today:hover { color: #80A7DD; }
 .calendar #today:active { color: #000; }

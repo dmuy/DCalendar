@@ -25,7 +25,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		this.date = this.today;		//current selected date, default is today
 		this.viewMode = 'days';
 		this.options = options;
-		this.selected = this.date.getMonth().toString() + "/" + this.date.getDate() + "/" + this.date.getFullYear();
+		this.selected = (this.date.getMonth() + 1) + "/" + this.date.getDate() + "/" + this.date.getFullYear();
 		if(options.mode == 'calendar')
 			this.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr></thead>');
 		else if (options.mode == 'datepicker')
@@ -40,9 +40,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				that.viewMode = 'days';
 				var curr = new Date(that.date),
 					sys = new Date(that.today);
-				if(curr.toString() != sys.toString()) { that.date = sys; that.create(that.viewMode); }
+				if(curr.toString() != sys.toString()) { that.date = sys; }
+				that.create('days');
 			}).on('click', '.date', function(){
-				that.selected = that.date.getMonth() + 1 + "/" + $(this).text() + "/" + that.date.getFullYear();
+				that.selected = (that.date.getMonth() + 1) + "/" + $(this).text() + "/" + that.date.getFullYear();
 				if(that.options.mode == 'datepicker') {
 					that.calendar.find('td').removeClass('selected');
 					$(this).addClass('selected');
@@ -121,17 +122,18 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		create : function(mode){
 			var that = this, cal = [], tBody = $('<tbody></tbody>'), d = new Date(that.date), days = that.date.getDays(), day = 1, nStartDate = 1, selDate = that.selected.split('/');
 			that.calendar.empty();
-			if(mode == "days"){
+			if(mode == "days") {
 				if(that.options.mode == 'calendar')
 					that.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr></thead>');
 				else if (that.options.mode == 'datepicker')
 					that.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>S</th><th>M</th><th>T</th><th>W</th><th>T</th><th>F</th><th>S</th></tr></thead>');
 				that.tHead.find('#currM').text(months[that.date.getMonth()] +" " + that.date.getFullYear());
 				that.calendar.append(that.tHead);
+				console.log(selDate);
 				for(var i=1; i<=6; i++){
 					var temp = [$('<td></td>'),$('<td></td>'),$('<td></td>'),$('<td></td>'),$('<td></td>'),$('<td></td>'),$('<td></td>')];
 
-					while(day<=days){
+					while(day <= days){
 						d.setDate(day);
 						var dayOfWeek = d.getDay();
 						if(day == that.today.getDate() && d.getMonth() == that.today.getMonth() && d.getFullYear() == that.today.getFullYear()) {
@@ -223,8 +225,8 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			cal.css({
 				position:'absolute',
 				left:0, display:'none',
-				'box-shadow':'0 0 4px rgba(0,0,0,0.15)',
-				width:'220px',
+				'box-shadow':'0 4px 6px 1px rgba(0, 0, 0, 0.14)',
+				width:'230px',
 			}).appendTo(that.parent());
 			if(opts){
 				opts.mode = 'datepicker';
@@ -244,7 +246,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 					$(this).hide();
 				}
 			}).on('selectdate', function(e){
-				that.val(e.date);
+				that.val(e.date).trigger('onchange');
 			    that.trigger($.Event('dateselected',{date: e.date, elem: that}));
 				selectedDate = true;
 			});
