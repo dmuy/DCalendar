@@ -4,72 +4,198 @@
  * Author: Dionlee Uy
  * Email: dionleeuy@gmail.com
  *
- * Date: Mon Mar 2 2013
+ * Date: Thursday, May 12 2016
  */
-.calendar {
-	position: relative;
-	font-family: 'Century Gothic','Segoe UI', Calibri, Arial;
-	font-size: 12px;
-	border-collapse: collapse;
-	margin: 0; padding: 0;
-	z-index: 4;
-	border:1px solid rgba(0,0,0,0.08);
-	width: 250px;
-	color: #000;
-	text-align: center;
-	background-color: #FFF;
+.calendar-overlay {
+	position: fixed;
+	top: 0; bottom: 0;
+	left: 0; right: 0;
+	background-color: rgba(10,10,10,.7);
+	z-index: 9999;
+	overflow: hidden;
+	display: none;
 }
-.calendar th,
-.calendar td {
-	text-align: center;
-	-webki-ttransition: all 0.3s ease;
-	-moz-transition: all 0.3s ease;
-	transition: all 0.3s ease;
-}
-.calendar th:first-child,
-.calendar td:first-child {
-	margin-left: 5px;
-}
-.calendar span {
-	padding: 6px 4px; 
-	display: block;
-}
-.calendar .month {
-	padding: 15px;
-}
-
-.calendar .pMDate, .calendar .nMDate { color: #AAA; }
-.calendar .date, .calendar .pMDate, .calendar .nMDate, .calendar .month { cursor: pointer; }
-.calendar .date:hover, .calendar .pMDate:hover, .calendar .nMDate:hover, .calendar .month:hover { background-color: #E2E2E2; }
-.calendar .date:active, .calendar .pMDate:active, .calendar .nMDate:active, .calendar .month:active { background-color: #22A7F0; color: #FFF; }
-.calendar .selected {
-	background-color: #22A7F0 !important;
-	color: #FFF !important;
-}
-
-.calendar tr:first-child th {
-	background-color: #FFF;
-	padding: 4px;
-	padding-top: 8px;
+.calendar-wrapper {
+	font-family: 'Segoe UI','Century Gothic',Calibri,Tahoma;
 	font-size: 14px;
+	position: relative;
+	width: 280px;
 }
-.calendar tr:first-child th { cursor: pointer; color:#000; }
-.calendar tr:first-child th:hover { color:#22A7F0; }
-.calendar tr:first-child th:active { color: #22A7F0; }
-.calendar thead tr:nth-child(2) th { color: #555; padding: 8px 3px; }
-.calendar #prev, .calendar #next {
+.calendar-wrapper.picker {
+	position: absolute;
+	left: 50%;
+	bottom: 5px;
+	min-width: 280px;
+	opacity: 1;
+	z-index: 99999;
+	background-color: #FFF;
+	overflow: hidden;
+	-webkit-transform: translateX(-50%);
+	   -moz-transform: translateX(-50%);
+		 -o-transform: translateX(-50%);
+			transform: translateC(-50%);
+    -webkit-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+       -moz-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    	 -o-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+    		box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+	-webkit-transition: bottom .3s ease, opacity .25s ease;
+	   -moz-transition: bottom .3s ease, opacity .25s ease;
+		 -o-transition: bottom .3s ease, opacity .25s ease;
+			transition: bottom .3s ease, opacity .25s ease;
+}
+.calendar-wrapper.picker.load {
+	bottom: -100px;
+	opacity: 0;
+}
+.calendar-head-card { background-color: #2196f3; }
+.calendar-head-card span {
+	display: block;
+	text-align: center;
+	color: #FFF;
+	text-transform: uppercase;
+}
+.calendar-dayofweek {
+	background-color: #1565c0;
+	padding: 5px;
+	font-size: 13px;
+}
+.calendar-date { font-size: 3.5em; }
+.calendar-month, .calendar-year { padding: 5px; font-size: 16px; }
+.calendar-container {
+	background-color: #FFF;
+	padding: 10px;
+}
+.calendar-top-selector {
+	display: table;
+	width: 100%;
+}
+.calendar-top-selector span {
+	display: table-cell;
+	text-align: center;
+	font-weight: bold;
+	cursor: pointer;
+}
+.calendar-next, .calendar-prev {
 	font-family: 'Times New Roman';
-	font-size: 20px;
-	padding: 0;
+	font-size: 150%;
+	width: 14%;
 }
-.calendar #today {
-	text-align: center; cursor: pointer;
-	color: #22A7F0; padding: 10px 6px;
+.calendar-grid {
+	position: relative;
+	overflow: hidden;
+	-webkit-transition: all .25s ease;
+	   -moz-transition: all .25s ease;
+		 -o-transition: all .25s ease;
+			transition: all .25s ease;
 }
-.calendar #today:hover { color: #80A7DD; }
-.calendar #today:active { color: #000; }
-.calendar #currDay { color:#22A7F0; }
-.datepicker {
-	background: url('./icon.png') transparent right no-repeat;
-	background-size: contain;
+.calendar-labels {
+	display: table;
+	width: 100%;
+	visibility: visible;
+	opacity: 1;
+	-webkit-transition: opacity .25s ease;
+	   -moz-transition: opacity .25s ease;
+		 -o-transition: opacity .25s ease;
+			transition: opacity .25s ease;
+}
+.calendar-labels.invis { visibility: hidden; opacity: 0; }
+.calendar-labels span {
+	display: table-cell;
+	width: 14%;
+	text-align: center;
+	text-transform: uppercase;
+	color: #555;
+	/*font-weight: bold;*/
+	font-size: 11px;
+	padding: 8px 0 4px 0;
+	vertical-align: middle;
+}
+.calendar-date-holder { 
+	position: relative;
+	width: 100%;
+	overflow: hidden;
+}
+.calendar-dates {
+	position: relative;
+	display: table;
+	float: left;
+	width: 100%;
+	-webkit-transition: all .3s;
+	   -moz-transition: all .3s;
+		 -o-transition: all .3s;
+			transition: all .3s;
+}
+.calendar-dates.hasmonths {
+	position: absolute;
+	top: 0;
+	left: 0;
+	opacity: 0;
+	-webkit-transform: scale(.5);
+	   -moz-transform: scale(.5);
+		 -o-transform: scale(.5);
+			transform: scale(.5);
+}
+.calendar-dates.left,
+.calendar-dates.right {
+	position: absolute;
+	top: 0;
+	left: 0;
+	margin-left: 0;
+}
+.calendar-dates.left.load { margin-left: -100%; }
+.calendar-dates.right.load { margin-left: 100%; }
+.calendar-dates.months {
+	position: relative;
+	opacity: 1;
+}
+.calendar-dates.months.load {
+	position: absolute;
+	top: 0;
+	left: 0;
+	opacity: 0;
+	-webkit-transform: scale(1.5);
+	   -moz-transform: scale(1.5);
+		 -o-transform: scale(1.5);
+			transform: scale(1.5);
+}
+.calendar-dates .cal-row { display: table-row; }
+.calendar-dates .date {
+	display: table-cell;
+	width: 14%;
+	text-align: center;
+	text-transform: uppercase;
+}
+.calendar-dates .date a {
+	text-decoration: none;
+	color: inherit;
+	display: block;
+	padding: 25% 0;
+	outline: none;
+	border-radius: 50%;
+	/*border: 2px solid transparent;*/
+	-webkit-transition: all .3s;
+	   -moz-transition: all .3s;
+		 -o-transition: all .3s;
+			transition: all .3s;
+}
+.calendar-dates .date a:hover,
+.calendar-dates .date a:focus { background-color: #E5E5E5; }
+.calendar-dates .date a:active { background-color: #D5D5D5; }
+.calendar-dates .date.current a { color: #2196F3; font-weight: bold; }
+.calendar-dates .date.pm,
+.calendar-dates .date.nm { color: #AAA; }
+.calendar-dates .date.selected a {
+	background-color: #2196f3;
+	color: #FFF;
+	/*color: #f44336;
+	font-weight: bold;*/
+}
+.calendar-dates .date.month a {
+	display: block;
+	padding: 40% 0;
+}
+@media (max-width: 350px) {
+	.calendar-wrapper {
+		max-width: 100%;
+	}
 }
