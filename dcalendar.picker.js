@@ -21,7 +21,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		DCalendar = function(elem, options) {
 		    this.calendar = $(elem);
 			this.today = new Date();	//system date
-			this.date = this.today;		//current selected date, default is today
+			this.date = this.calendar.prev().val() === '' ? new Date() : new Date(this.calendar.prev().val());	//current selected date, default is today if no value given
 			this.viewMode = 'days';
 			this.options = options;
 			this.selected = (this.date.getMonth() + 1) + "/" + this.date.getDate() + "/" + this.date.getFullYear();
@@ -63,7 +63,8 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 						that.calendar.find('td').removeClass('selected');
 						$(this).addClass('selected');
 					}
-					selectDate();
+
+					that.selectDate();
 					return true;
 				}).on('click', '#currM', function(){
 					that.viewMode = 'months';
@@ -75,28 +76,6 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 					that.date = curr;
 					that.create(that.viewMode);
 				});
-
-			function selectDate () {
-				var newDate = formatDate(that.options.format);
-				var e = $.Event('selectdate', {date: newDate});
-				that.calendar.trigger(e);
-			}
-
-			function formatDate (format) {
-				var d = new Date(that.selected), day = d.getDate(), m = d.getMonth(), y = d.getFullYear();
-				return format.replace(/(yyyy|yy|mmmm|mmm|mm|m|dd|d)/gi, function (e) {
-					switch(e.toLowerCase()){
-						case 'd': return day;
-						case 'dd': return (day < 10 ? "0"+day: day);
-						case 'm': return m+1;
-						case 'mm': return (m+1 < 10 ? "0"+(m+1): (m+1));
-						case 'mmm': return short_months[m];
-						case 'mmmm': return months[m];
-						case 'yy': return y.toString().substr(2,2);
-						case 'yyyy': return y;
-					}
-				});
-			}
 
 			function initCreate(o){
 				var curr = new Date(that.date),
@@ -119,7 +98,42 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 		constructor : DCalendar, 
 
-		//setDate : function(){},
+		setDate : function() {
+			var that = this,
+				value = new Date(that.calendar.prev().val());
+
+			that.selected = (value.getMonth() + 1) + "/" + value.getDate() + "/" + value.getFullYear();
+			that.selectDate();
+			that.date = value;
+			that.create(that.viewMode);
+		},
+
+		selectDate : function () {
+			var that = this,
+				newDate = that.formatDate(that.options.format),
+				e = $.Event('selectdate', {date: newDate});
+
+			that.calendar.trigger(e);
+		},
+
+		formatDate : function (format) {
+			console.log(this.selected);
+			var that = this;
+			var d = new Date(that.selected), day = d.getDate(), m = d.getMonth(), y = d.getFullYear();
+			
+			return format.replace(/(yyyy|yy|mmmm|mmm|mm|m|dd|d)/gi, function (e) {
+				switch(e.toLowerCase()){
+					case 'd': return day;
+					case 'dd': return (day < 10 ? "0"+day: day);
+					case 'm': return m+1;
+					case 'mm': return (m+1 < 10 ? "0"+(m+1): (m+1));
+					case 'mmm': return short_months[m];
+					case 'mmmm': return months[m];
+					case 'yy': return y.toString().substr(2,2);
+					case 'yyyy': return y;
+				}
+			});
+		},
 
 		create : function(mode){
 			var that = this, cal = [], tBody = $('<tbody></tbody>'), d = new Date(that.date), days = that.date.getDays(), day = 1, nStartDate = 1, selDate = that.selected.split('/');
@@ -245,43 +259,51 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 	/* DEFINITION FOR DCALENDAR PICKER */
 	$.fn.dcalendarpicker = function(opts){
 		return $(this).each(function(){
-			var that = $(this);
-			var cal = $('<table class="calendar"></table>'), hovered = false, selectedDate = false;
-			that.wrap($('<div class="datepicker" style="display:inline-block;position:relative;"></div>'));
-			cal.css({
-				position:'absolute',
-				left:0, display:'none',
-				'box-shadow':'0 4px 6px 1px rgba(0, 0, 0, 0.14)',
-				width:'230px',
-			}).appendTo(that.parent());
-			if(opts){
-				opts.mode = 'datepicker';
-				cal.dcalendar(opts);
-			} else{
-				cal.dcalendar({mode: 'datepicker'});
-			}
-			cal.hover(function(){
-				hovered = true;
-			}, function(){
-				hovered = false;
-			}).on('click', function(){
-				if(!selectedDate)
-					that.focus();
-				else {
-					selectedDate = false;
-					$(this).hide();
+			var that = $(this),
+				hovered = false, selectedDate = false,
+				cal = null;
+
+			if(typeof opts === 'string') {
+				var data = that.next('.calendar').data('dcalendar');
+				data[opts]();
+			} else {
+				cal = $('<table class="calendar"></table>');
+				that.wrap($('<div class="datepicker" style="display:inline-block;position:relative;"></div>'));
+				cal.css({
+					position:'absolute',
+					left:0, display:'none',
+					'box-shadow':'0 4px 6px 1px rgba(0, 0, 0, 0.14)',
+					width:'230px',
+				}).appendTo(that.parent());
+				if(opts){
+					opts.mode = 'datepicker';
+					cal.dcalendar(opts);
+				} else{
+					cal.dcalendar({mode: 'datepicker'});
 				}
-			}).on('selectdate', function(e){
-				that.val(e.date).trigger('onchange');
-			    that.trigger($.Event('dateselected', {date: e.date, elem: that}));
-				selectedDate = true;
-			});
-			that.on('keydown', function(e){ if(e.which) return false; })
-				.on('focus', function(){
-					$('.datepicker').find('.calendar').not(cal).hide();
-					cal.show();
-				})
-				.on('blur', function(){ if(!hovered) cal.hide(); });
+				cal.hover(function(){
+					hovered = true;
+				}, function(){
+					hovered = false;
+				}).on('click', function(){
+					if(!selectedDate)
+						that.focus();
+					else {
+						selectedDate = false;
+						$(this).hide();
+					}
+				}).on('selectdate', function(e){
+					that.val(e.date).trigger('onchange');
+				    that.trigger($.Event('dateselected', {date: e.date, elem: that}));
+					selectedDate = true;
+				});
+				that.on('keydown', function(e){ if(e.which) return false; })
+					.on('focus', function(){
+						$('.datepicker').find('.calendar').not(cal).hide();
+						cal.show();
+					})
+					.on('blur', function(){ if(!hovered) cal.hide(); });
+			}
 		});
 	}
 
