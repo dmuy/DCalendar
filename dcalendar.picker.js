@@ -101,6 +101,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		setDate : function() {
 			var that = this,
 				dateObj = that.reformatDate(that.calendar.prev().val()),
+				value = isNaN(parseInt(dateObj.m)) ? new Date(dateObj.m + " " + dateObj.d + ", " + dateObj.y) : new Date(dateObj.y, dateObj.m - 1, dateObj.d);
 
 			that.selected = (value.getMonth() + 1) + "/" + value.getDate() + "/" + value.getFullYear();
 			that.selectDate();
