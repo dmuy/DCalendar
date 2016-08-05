@@ -100,7 +100,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 		setDate : function() {
 			var that = this,
-				value = new Date(that.calendar.prev().val());
+				dateObj = that.reformatDate(that.calendar.prev().val()),
 
 			that.selected = (value.getMonth() + 1) + "/" + value.getDate() + "/" + value.getFullYear();
 			that.selectDate();
@@ -114,6 +114,17 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				e = $.Event('selectdate', {date: newDate});
 
 			that.calendar.trigger(e);
+		},
+
+		reformatDate : function (date) {
+			var that = this,
+				format = that.options.format;
+
+			return {
+					m: date.substring(format.indexOf('m'), format.lastIndexOf('m') + 1),
+					d: date.substring(format.indexOf('d'), format.lastIndexOf('d') + 1),
+					y: date.substring(format.indexOf('y'), format.lastIndexOf('y') + 1)
+				};
 		},
 
 		formatDate : function (format) {
