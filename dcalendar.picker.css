@@ -1,4 +1,12 @@
-.calendar-overlay {
+/*!Don't remove this!
+ * jQuery DCalendar and DCalendar Picker plugin styles
+ * 
+ * Author: Dionlee Uy
+ * Email: dionleeuy@gmail.com
+ *
+ * Date: Thursday, May 12 2016
+ */
+ .calendar-overlay {
 	position: fixed;
 	top: 0; bottom: 0;
 	left: 0; right: 0;
