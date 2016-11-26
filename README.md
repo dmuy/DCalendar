@@ -50,3 +50,17 @@ You can also specify the mininum and maximum date to create a specific date rang
 ```
 <input type="text" id="datepicker" data-mindate="1/1/2016" data-maxdate="2/1/2016"/>  //Dates enabled ranges from January 1 to February 1, 2016
 ```
+
+##Event
+The event `datechanged` is fired after selection of date in the date picker.
+You can use this to get the new date value:
+```
+<script>
+  $(document).ready(function(){
+    $('#datepicker').dcalendarpicker({format: 'mm-dd-yyy'}).on('datechanged', function(e){
+      alert(e.date);
+    });
+  });
+</script>
+```
+The above code will alert the new date selected. For example: `01-16-2016` or January 16, 2016
