@@ -37,6 +37,17 @@ The default string format of the date is `mm/dd/yyyy`. You can specify the forma
 The above code will output a date in this format `mm-dd-yyyy`, for example: `10-31-2016` - which is October 31, 2016.
 You can specify other format you want, like `mmm dd, yyyy` which would output something like `Oct 01, 2016`.
 
+| Variable      | Code         | Output  |
+| ------------- |--------------|---------|
+| Month         | `m`          | 1       |
+|               | `mm`         | 01      |
+|               | `mmm`        | Jan     |
+|               | `mmmm`       | January |
+| Date          | `d`          | 1       |
+|               | `dd`         | 01      |
+| Year          | `yy`         | 16      |
+|               | `yyyy`       | 2016    |
+
 ##Min and Max
 You can also specify the mininum and/or maximum date the user can select on othe date picker.
 Just specify `data-mindate` and/or `data-maxdate` attributes on your `input` element. The acceptable values for these attributes are `today` or a specific date using this format: `mm/dd/yyyy`:
