@@ -25,6 +25,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			this.options = options;
 			this.calendar = null;		//calendar container
 			this.today = new Date();	//current date
+
 			//current selected date, default is today if no value given
 			if(this.elem.val() === '') {
 				this.date = new Date();
@@ -75,15 +76,72 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 	DCalendar.prototype = {
 		constructor : DCalendar,
+		/* Parses date string using default or specified format. */
 		reformatDate : function (date) {
 			var that = this,
-				format = that.options.format;
+				format = that.options.format,
+				dayLength = (format.match(/d/g) || []).length,
+				monthLength = (format.match(/m/g) || []).length,
+				yearLength = (format.match(/y/g) || []).length,
+				isFullMonth = monthLength == 4,
+				isMonthNoPadding = monthLength == 1,
+				isDayNoPadding = dayLength == 1,
+				lastIndex = date.length,
+				firstM = format.indexOf('m'), firstD = format.indexOf('d'), firstY = format.indexOf('y'),
+				month = '', day = '', year = '';
 
-			return {
-					m: date.substring(format.indexOf('m'), format.lastIndexOf('m') + 1),
-					d: date.substring(format.indexOf('d'), format.lastIndexOf('d') + 1),
-					y: date.substring(format.indexOf('y'), format.lastIndexOf('y') + 1)
-				};
+			// Get month on given date string using the format (default or specified)
+			if(isFullMonth) {
+				var monthIndex = -1;
+				$.each(months, function (i, month) { if (date.indexOf(month) >= 0) monthIndex = i; });
+				month = months[monthIndex];
+				format = format.replace('mmmm', month);
+				firstD = format.indexOf('d');
+				firstY = format.indexOf('y');
+			} else if (!isDayNoPadding && !isMonthNoPadding || (isDayNoPadding && !isMonthNoPadding && firstM < firstD)) {
+				month = date.substr(firstM, monthLength);
+			} else {
+				var lastIndexM = format.lastIndexOf('m'),
+					before = format.substring(firstM - 1, firstM),
+					after = format.substring(lastIndexM + 1, lastIndexM + 2);
+
+				if (lastIndexM == format.length - 1) {
+					month = date.substring(date.indexOf(before, firstM - 1) + 1, lastIndex);
+				} else if (firstM == 0) {
+					month = date.substring(0, date.indexOf(after, firstM));
+				} else {
+					console.log(date.indexOf(after, firstM));
+					month = date.substring(date.indexOf(before, firstM - 1) + 1, date.indexOf(after, firstM + 1));
+				}
+			}
+
+			// Get date on given date string using the format (default or specified)
+			if (!isDayNoPadding && !isMonthNoPadding || (!isDayNoPadding && isMonthNoPadding && firstD < firstM)) {
+				day = date.substr(firstD, dayLength);
+			} else {
+				var lastIndexD = format.lastIndexOf('d');
+					before = format.substring(firstD - 1, firstD),
+					after = format.substring(lastIndexD + 1, lastIndexD + 2);
+
+				if (lastIndexD == format.length - 1) {
+					day = date.substring(date.indexOf(before, firstD - 1) + 1, lastIndex);
+				} else if (firstD == 0) {
+					day = date.substring(0, date.indexOf(after, firstD));
+				} else {
+					day = date.substring(date.indexOf(before, firstD - 1) + 1, date.indexOf(after, firstD + 1));
+				}
+			}
+
+			// Get year on given date string using the format (default or specified)
+			if (!isMonthNoPadding && !isDayNoPadding || (isMonthNoPadding && isDayNoPadding && firstY < firstM && firstY < firstD)
+				|| (!isMonthNoPadding && isDayNoPadding && firstY < firstD) || (isMonthNoPadding && !isDayNoPadding && firstY < firstM)) {
+				year = date.substr(firstY, yearLength);
+			} else {
+				var before = format.substring(firstY - 1, firstY);
+				year = date.substr(date.indexOf(before, firstY - 1) + 1, yearLength);
+			}
+
+			return { m: month, d: day, y: year };
 		},
 		/* Returns formatted string representation of selected date */
 		formatDate : function (format) {
@@ -107,7 +165,6 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				newDate = that.formatDate(that.options.format),
 				e = $.Event('dateselected', {date: newDate});
 
-			that.date = new Date(that.selected.getFullYear(), that.selected.getMonth(), that.selected.getDate());
 			that.elem.trigger(e);
 		},
 		cleanUp : function (toRemove, currElem, cssClass) {
