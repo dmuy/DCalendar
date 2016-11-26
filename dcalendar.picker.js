@@ -17,15 +17,24 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 	var months = ['January','February','March','April','May','June','July','August','September','October','November','December'],
 		short_months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
 		daysofweek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+		short_days = ['Sun','Mon','Tues','Wed','Thu','Fri','Sat'],
 		ex_keys = [9,112,113,114,115,116,117,118,119,120,121,122,123],
 
 		DCalendar = function(elem, options) {
 			this.elem = $(elem);
+			this.options = options;
 			this.calendar = null;		//calendar container
 			this.today = new Date();	//current date
-			this.date = this.elem.val() === '' ? new Date() : new Date(this.elem.val());	//current selected date, default is today if no value given
+			//current selected date, default is today if no value given
+			if(this.elem.val() === '') {
+				this.date = new Date();
+			} else {
+				var dateObj = this.reformatDate(this.elem.val());
+				this.date = isNaN(parseInt(dateObj.m)) ? new Date(dateObj.m + " " + dateObj.d + ", " + dateObj.y) : new Date(dateObj.y, dateObj.m - 1, dateObj.d);
+			}
 			this.viewMode = 'days';
-			this.options = options;
+			this.minDate = this.elem.data('mindate');
+			this.maxDate = this.elem.data('maxdate');
 			
 			this.selected = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate());
 			
@@ -33,26 +42,29 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 			this.create(this.viewMode);
 
+			this.calendar.find('.calendar-head-card .calendar-date-wrapper').click(function () {
+				that.selected = new Date(that.today.getFullYear(), that.today.getMonth(), that.today.getDate());
+
+				//Trigger select event
+				that.selectDate();
+				that.selectedView();
+			});
 			this.calendar.find('.calendar-prev').click(function () { that.getNewMonth('left', true); });
 			this.calendar.find('.calendar-next').click(function () { that.getNewMonth('right', true); });
-			this.calendar.find('.calendar-curr-month').click(function () {
-				that.getMonths();
-			});
-			this.calendar.find('.calendar-date-holder').on('click', '.calendar-dates .date:not(.date.month)', function () {
+			this.calendar.find('.calendar-curr-month').click(function () { that.getMonths(); });
+		    this.calendar.find('.calendar-date-holder').on('click', '.calendar-dates .date:not(.date.month) a', function () {
+		    	var span = $(this).parent();
+		        if (span.hasClass('disabled')) return;
 				that.calendar.find('.calendar-dates .date').removeClass('selected');
-				$(this).addClass('selected');
-				var day = parseInt($(this).find('a').text()),
-					plus = $(this).hasClass('pm') ? -1 : $(this).hasClass('nm') ? 1 : 0;
+				span.addClass('selected');
+				var day = parseInt($(this).text()),
+					plus = span.hasClass('pm') ? -1 : span.hasClass('nm') ? 1 : 0;
 				that.selected = new Date(that.date.getFullYear(), that.date.getMonth() + plus, day);
 				
 				//Trigger select event
-				that.calendar.trigger($.Event('dateselected', {date: that.formatDate(that.options.format)}));
-			}).on('click', '.calendar-dates .date.pm', function () {
-				that.getNewMonth('left', true);
-			}).on('click', '.calendar-dates .date.nm', function () {
-				that.getNewMonth('right', true);
-			}).on('click', '.calendar-dates .date.month', function () {
-				var selMonth = parseInt($(this).attr('data-month'));
+				that.selectDate();
+			}).on('click', '.calendar-dates .date.month a', function () {
+				var selMonth = parseInt($(this).parent().attr('data-month'));
 				that.viewMode = 'days';
 				that.date.setMonth(selMonth);
 				that.getNewMonth(null, false);
@@ -63,6 +75,17 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 	DCalendar.prototype = {
 		constructor : DCalendar,
+		reformatDate : function (date) {
+			var that = this,
+				format = that.options.format;
+
+			return {
+					m: date.substring(format.indexOf('m'), format.lastIndexOf('m') + 1),
+					d: date.substring(format.indexOf('d'), format.lastIndexOf('d') + 1),
+					y: date.substring(format.indexOf('y'), format.lastIndexOf('y') + 1)
+				};
+		},
+		/* Returns formatted string representation of selected date */
 		formatDate : function (format) {
 			var d = new Date(this.selected), day = d.getDate(), m = d.getMonth(), y = d.getFullYear();
 			return format.replace(/(yyyy|yy|mmmm|mmm|mm|m|dd|d)/gi, function (e) {
@@ -78,14 +101,27 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				}
 			});
 		},
+		/* Selects date and trigger event (for other actions - if specified) */
+		selectDate : function () {
+			var that = this,
+				newDate = that.formatDate(that.options.format),
+				e = $.Event('dateselected', {date: newDate});
+
+			that.date = new Date(that.selected.getFullYear(), that.selected.getMonth(), that.selected.getDate());
+			that.elem.trigger(e);
+		},
 		cleanUp : function (toRemove, currElem, cssClass) {
 			setTimeout(function () {
 				currElem.removeClass(cssClass);
 				toRemove.remove();
 			}, 250);
 		},
+		/* Gets list of months (for month view) */
 		getMonths : function () {
-			var that = this;
+			var that = this,
+				currentYear = that.today.getFullYear(),
+				currentMonth = that.today.getMonth();
+
 			if(that.viewMode !== 'days') return;
 			var cal = that.calendar;
 				curr = cal.find('.calendar-dates'),
@@ -98,7 +134,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				count = 0;
 
 			that.viewMode = 'months';
-			// dayLabel.hide();
+			currMonth.text(that.date.getFullYear());
 			dayLabel.addClass('invis');
 			for (var i = 1; i < 4; i++) {
 				var row = [$("<span class='date month'></span>"),
@@ -122,17 +158,19 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			setTimeout(function () { cElem.removeClass('load'); }, 0);
 			setTimeout(function () {
 				curr.remove();
-				currMonth.text(that.date.getFullYear());
 			}, 250);
 		},
-		getDays : function (newDate, cb) {
-			var that = this,
-				ndate = new Date(newDate),
-				today = that.today,
+		/* Gets days for month of 'newDate'*/
+		getDays : function (newDate, callback) {
+		    var that = this,
+				ndate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()),
+				today = new Date(that.today.getFullYear(), that.today.getMonth(), that.today.getDate()),
+                min = that.minDate === "today" ? today : new Date(that.minDate),
+                max = that.maxDate === "today" ? today : new Date(that.maxDate),
 				days = ndate.getDays(),
-				day = 1;
-				d = new Date(newDate),
-				nStartDate = 1;
+				day = 1,
+		        d = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()),
+				nStartDate = 1,
 				rows = [],
 				dates = [];
 
@@ -148,60 +186,55 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				while(day <= days) {
 					d.setDate(day);
 					var dayOfWeek = d.getDay();
-					if(day === today.getDate() 
-						&& d.getMonth() === today.getMonth() 
-						&& d.getFullYear() === today.getFullYear()) {
-						week[dayOfWeek].addClass('current');
-					}
+
+					if (d.getTime() == today.getTime()) week[dayOfWeek].addClass('current');
+                    
+                    if ((that.minDate && d < min) || (that.maxDate && d > max)) week[dayOfWeek].addClass('disabled');
 
 					if(i === 1 && dayOfWeek === 0){
 						break;
 					} else if (dayOfWeek < 6) {
-					    if (day === that.selected.getDate()
-						&& d.getMonth() === that.selected.getMonth()
-						&& d.getFullYear() === that.selected.getFullYear()) {
-					        week[dayOfWeek].addClass('selected');
-					    }
+					    //console.log(that.selected);
+					    if (d.getTime() == that.selected.getTime()) week[dayOfWeek].addClass('selected');
+
 						week[dayOfWeek].html('<a href="javascript:void(0);">' + (day++) + '</a>');
 					} else {
-					    if (day === that.selected.getDate()
-						&& d.getMonth() === that.selected.getMonth()
-						&& d.getFullYear() === that.selected.getFullYear()) {
-					        week[dayOfWeek].addClass('selected');
-					    }
+					    if (d.getTime() == that.selected.getTime()) week[dayOfWeek].addClass('selected');
+
 						week[dayOfWeek].html('<a href="javascript:void(0);">' + (day++) + '</a>');
 						break;
 					}
 				}
 				/* For days of previous and next month */
 				if (i === 1 || i > 4) {
-					var p = new Date(newDate);
 					// First week
-					if (i === 1) {
-						var pMonth = p.getMonth(), pDays = 0;
-						p.setDate(1);
-						p.setMonth(pMonth - 1);
-						pDays = p.getDays();
+				    if (i === 1) {
+				        var pmonth = new Date(newDate.getFullYear(), newDate.getMonth() - 1, 1);
+				        var pMonth = pmonth.getMonth(), pDays = 0;
+				        pDays = pmonth.getDays();
 						for (var a = 6; a >= 0; a--) {
-							if (week[a].text() !== '') continue;
-							week[a].html('<a href="javascript:void(0);">' + (pDays--) + '</a>').addClass('pm');
-							if ((pDays + 1) === that.selected.getDate() 
-								&& d.getMonth() - 1 === that.selected.getMonth() 
-								&& d.getFullYear() === that.selected.getFullYear()) {
-								week[a].addClass('selected');
-							}
+						    if (week[a].text() !== '') continue;
+
+						    pmonth.setDate(pDays);
+						    week[a].html('<a href="javascript:void(0);">' + (pDays--) + '</a>').addClass('pm');
+
+							if ((that.minDate && pmonth < min) || (that.maxDate && pmonth > max)) week[a].addClass('disabled');
+
+							if (pmonth.getTime() == that.selected.getTime()) week[a].addClass('selected');
 						}
 					} 
 					// Last week
 					else if (i > 4) {
+					    var nmonth = new Date(d.getFullYear(), d.getMonth() + 1, 1);
 						for (var a = 0; a <= 6; a++) {
-							if (week[a].text() !== '') continue;
-							week[a].html('<a href="javascript:void(0);">' + (nStartDate++) + '</a>').addClass('nm');
-							if ((nStartDate - 1) === that.selected.getDate() 
-								&& d.getMonth() + 1 === that.selected.getMonth() 
-								&& d.getFullYear() === that.selected.getFullYear()) {
-								week[a].addClass('selected');
-							}
+						    if (week[a].text() !== '') continue;
+
+						    nmonth.setDate(nStartDate);
+						    week[a].html('<a href="javascript:void(0);">' + (nStartDate++) + '</a>').addClass('nm');
+
+							if ((that.minDate && nmonth < min) || (that.maxDate && nmonth > max)) week[a].addClass('disabled');
+
+							if (nmonth.getTime() == that.selected.getTime()) week[a].addClass('selected');
 						}
 					}
 				}
@@ -212,8 +245,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				for(var i = 0; i < l; i++) { row.append(v[i]); }
 				dates.push(row);
 			});
-			cb(dates);
+			callback(dates);
 		},
+		/* Sets current view based on user interaction (on arrows) */
 		getNewMonth : function (dir, isTrigger) {
 			var that = this,
 				cal = that.calendar;
@@ -226,7 +260,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				container = cal.find('.calendar-date-holder');
 
 			if (that.viewMode === 'days') {
-				if (isTrigger) that.date.setMonth(that.date.getMonth() + ( dir === 'right' ? 1 : -1));
+				if (isTrigger) {
+					that.date.setDate(1);
+					that.date.setMonth(that.date.getMonth() + ( dir === 'right' ? 1 : -1));
+				}
 				that.getDays(that.date, function (dates) {
 					if (isTrigger) {
 						var cElem = curr.clone();
@@ -249,11 +286,11 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 					}
 				});
 				
-				lblMonth.text(months[that.date.getMonth()] + ', ' + that.date.getFullYear());
+				lblMonth.text(months[that.date.getMonth()] + ' ' + that.date.getFullYear());
 				
 				if (!isTrigger && !curr.hasClass('months')) {
-					lblTodayDay.text(daysofweek[that.today.getDay()]);
-					lblTodayMonth.text(months[that.today.getMonth()]);
+					lblTodayDay.text(short_days[that.today.getDay()]);
+					lblTodayMonth.text(short_months[that.today.getMonth()]);
 					lblTodayDate.text(that.today.getDate());
 					lblTodayYear.text(that.today.getFullYear());
 				}
@@ -262,16 +299,34 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				lblMonth.text(that.date.getFullYear());
 			}
 		},
+		/* Sets current view to selected date */
+		selectedView : function () {
+			var that = this,
+				cal = that.calendar;
+				curr = cal.find('.calendar-dates:eq(0)'),
+				lblMonth = cal.find('.calendar-curr-month'),
+				lblDays = cal.find('.calendar-labels');
+
+			that.getDays(that.selected, function (dates) {
+				curr.html(dates);
+			});
+
+			lblMonth.text(months[that.selected.getMonth()] + ' ' + that.selected.getFullYear());
+			lblDays.removeClass('invis');
+			that.viewMode = 'days';
+		},
+		/* Creates components for the calendar */
 		create : function(){
 			var that = this,
 				mode = that.options.mode,
 				overlay = $('<div class="calendar-overlay"></div>'),
 				wrapper = $('<div class="calendar-wrapper load"></div>'),
-				cardhead = $('<section class="calendar-head-card"><span class="calendar-dayofweek"></span><span class="calendar-month"></span><span class="calendar-date"></span><span class="calendar-year"></span></section>'),
+				cardhead = $('<section class="calendar-head-card"><span class="calendar-year"></span><span class="calendar-date-wrapper" title="Select current date."><span class="calendar-dayofweek"></span>, <span class="calendar-month"></span> <span class="calendar-date"></span></span></section>'),
 				container = $('<div class="calendar-container"></div>'),
 				calhead = $('<section class="calendar-top-selector"><span class="calendar-prev">&lsaquo;</span><span class="calendar-curr-month"></span><span class="calendar-next">&rsaquo;</span></section>'),
 				datesgrid = $('<section class="calendar-grid">'
-							+ '<div class="calendar-labels"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>'
+							// + '<div class="calendar-labels"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>'
+							+ '<div class="calendar-labels"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'
 							+ '<div class="calendar-date-holder"><section class="calendar-dates"></section></div></section>');
 
 			calhead.appendTo(container);
@@ -288,17 +343,20 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				overlay.appendTo('body');
 			}
 		},
+		/* Shows the calendar (date picker) */
 		show : function () {
-			var that = this;
-
-			that.calendar.parent().fadeIn('fast');
-			that.calendar.removeClass('load');
+			this.date = new Date(this.selected.getFullYear(), this.selected.getMonth(), this.selected.getDate());
+			this.selectedView();
+			this.calendar.parent().fadeIn('fast');
+			this.calendar.removeClass('load');
 		},
-		hide : function () {
+		/* Hides the calendar (date picker) */
+		hide : function (callback) {
 			var that = this;
 			that.calendar.addClass('load');
 			that.calendar.parent().fadeOut(function () {
 				// that.calendar.parent().remove();
+				if(callback) callback();
 				if(that.elem.is('input')) that.elem.focus();
 			});
 		}
@@ -340,15 +398,19 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			that.on('click', function (e) {
 				var cal = that.data('dcalendar');
 				cal.show();
-				cal.calendar.on('dateselected', function (e) {
-					that.val(e.date).trigger('onchange');
-					that.trigger($.Event('dateselected', {date: e.date}));
-					cal.hide();
-				});
 				this.blur();
+			}).on('dateselected', function (e) {
+				var cal = that.data('dcalendar');
+				that.val(e.date).trigger('onchange');
+				cal.hide(function () {
+					that.trigger($.Event('datechanged', {date: e.date}));
+				});				
 			}).on('keydown', function(e){
-				console.log(e.which);
 				if(ex_keys.indexOf(e.which) < 0) return false; 
+			});
+			$(document).on('keydown', function (e) {
+				if(e.keyCode != 27) return;
+				that.data('dcalendar').hide();
 			});
 		});
 	};

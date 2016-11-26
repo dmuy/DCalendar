@@ -1,22 +1,14 @@
-/*!Don't remove this!
- * jQuery DCalendar and DCalendar Picker plugin styles
- * 
- * Author: Dionlee Uy
- * Email: dionleeuy@gmail.com
- *
- * Date: Thursday, May 12 2016
- */
 .calendar-overlay {
 	position: fixed;
 	top: 0; bottom: 0;
 	left: 0; right: 0;
-	background-color: rgba(10,10,10,.7);
-	z-index: 9999;
+	background-color: rgba(10,10,10,.9);
+	z-index: 100001;
 	overflow: hidden;
 	display: none;
 }
 .calendar-wrapper {
-	font-family: 'Segoe UI','Century Gothic',Calibri,Tahoma;
+	font-family: Roboto,'Segoe UI','Century Gothic',Calibri,Tahoma;
 	font-size: 14px;
 	position: relative;
 	width: 280px;
@@ -24,61 +16,75 @@
 .calendar-wrapper.picker {
 	position: absolute;
 	left: 50%;
-	bottom: 5px;
+	bottom: 16px;
 	min-width: 280px;
 	opacity: 1;
-	z-index: 99999;
-	background-color: #FFF;
 	overflow: hidden;
-	-webkit-transform: translateX(-50%);
-	   -moz-transform: translateX(-50%);
-		 -o-transform: translateX(-50%);
-			transform: translateC(-50%);
+	-webkit-border-radius: 2px;
+	   -moz-border-radius: 2px;
+		 -o-border-radius: 2px;
+			border-radius: 2px;
+	-webkit-transform: translateX(-50%) scale(1);
+	   -moz-transform: translateX(-50%) scale(1);
+		 -o-transform: translateX(-50%) scale(1);
+			transform: translateX(-50%) scale(1);
     -webkit-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
        -moz-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
     	 -o-box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
     		box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
-	-webkit-transition: bottom .3s ease, opacity .25s ease;
-	   -moz-transition: bottom .3s ease, opacity .25s ease;
-		 -o-transition: bottom .3s ease, opacity .25s ease;
-			transition: bottom .3s ease, opacity .25s ease;
+	-webkit-transition: -webkit-transform .25s ease, opacity .25s ease;
+	   -moz-transition: -moz-transform .25s ease, opacity .25s ease;
+		 -o-transition: -o-transform .25s ease, opacity .25s ease;
+			transition: transform .25s ease, opacity .25s ease;
 }
 .calendar-wrapper.picker.load {
-	bottom: -100px;
+	/*bottom: -32px;*/
 	opacity: 0;
+	-webkit-transform: translateX(-50%) scale(1.05);
+	   -moz-transform: translateX(-50%) scale(1.05);
+		 -o-transform: translateX(-50%) scale(1.05);
+			transform: translateX(-50%) scale(1.05);
 }
-.calendar-head-card { background-color: #2196f3; }
-.calendar-head-card span {
-	display: block;
-	text-align: center;
-	color: #FFF;
-	text-transform: uppercase;
-}
-.calendar-dayofweek {
+.calendar-head-card {
 	background-color: #1565c0;
-	padding: 5px;
-	font-size: 13px;
+	font-size: 18px;
+	padding: 16px;
 }
-.calendar-date { font-size: 3.5em; }
-.calendar-month, .calendar-year { padding: 5px; font-size: 16px; }
+	.calendar-head-card .calendar-year,
+	.calendar-head-card .calendar-date-wrapper { 
+		color: rgb(220,220,220);
+		display: block;
+	}
+	.calendar-head-card .calendar-date-wrapper {
+		font-size: 30px;
+		cursor: pointer;
+	}
+		.calendar-head-card .calendar-date-wrapper:hover { color: #fff; }
 .calendar-container {
-	background-color: #FFF;
+	background-color: #fff;
 	padding: 10px;
+	user-select: none;
+	-webkit-user-select: none;
+	-ms-user-select: none;
+	-moz-user-select: none;
 }
 .calendar-top-selector {
 	display: table;
 	width: 100%;
+	color: rgb(50,50,50);
 }
-.calendar-top-selector span {
-	display: table-cell;
-	text-align: center;
-	font-weight: bold;
-	cursor: pointer;
-}
+	.calendar-top-selector span {
+		display: table-cell;
+		text-align: center;
+		font-weight: bold;
+		cursor: pointer;
+	}
+	.calendar-top-selector .calendar-curr-month { padding-bottom: 4px; }
 .calendar-next, .calendar-prev {
 	font-family: 'Times New Roman';
-	font-size: 150%;
+	font-size: 24px;
 	width: 14%;
+	color: rgb(50,50,50);
 }
 .calendar-grid {
 	position: relative;
@@ -103,9 +109,7 @@
 	display: table-cell;
 	width: 14%;
 	text-align: center;
-	text-transform: uppercase;
-	color: #555;
-	/*font-weight: bold;*/
+	color: rgb(50,50,50);
 	font-size: 11px;
 	padding: 8px 0 4px 0;
 	vertical-align: middle;
@@ -120,79 +124,86 @@
 	display: table;
 	float: left;
 	width: 100%;
-	-webkit-transition: all .3s;
-	   -moz-transition: all .3s;
-		 -o-transition: all .3s;
-			transition: all .3s;
+	-webkit-transition: all .3s ease;
+	   -moz-transition: all .3s ease;
+		 -o-transition: all .3s ease;
+			transition: all .3s ease;
 }
-.calendar-dates.hasmonths {
-	position: absolute;
-	top: 0;
-	left: 0;
-	opacity: 0;
-	-webkit-transform: scale(.5);
-	   -moz-transform: scale(.5);
-		 -o-transform: scale(.5);
-			transform: scale(.5);
-}
-.calendar-dates.left,
-.calendar-dates.right {
-	position: absolute;
-	top: 0;
-	left: 0;
-	margin-left: 0;
-}
-.calendar-dates.left.load { margin-left: -100%; }
-.calendar-dates.right.load { margin-left: 100%; }
-.calendar-dates.months {
-	position: relative;
-	opacity: 1;
-}
-.calendar-dates.months.load {
-	position: absolute;
-	top: 0;
-	left: 0;
-	opacity: 0;
-	-webkit-transform: scale(1.5);
-	   -moz-transform: scale(1.5);
-		 -o-transform: scale(1.5);
-			transform: scale(1.5);
-}
+	.calendar-dates.hasmonths {
+		position: absolute;
+		top: 0;
+		left: 0;
+		opacity: 0;
+		-webkit-transform: scale(.5);
+		   -moz-transform: scale(.5);
+			 -o-transform: scale(.5);
+				transform: scale(.5);
+	}
+	.calendar-dates.left,
+	.calendar-dates.right {
+		position: absolute;
+		top: 0;
+		left: 0;
+		margin-left: 0;
+	}
+		.calendar-dates.left.load { margin-left: -100%; }
+		.calendar-dates.right.load { margin-left: 100%; }
+	.calendar-dates.months {
+		position: relative;
+		opacity: 1;
+	}
+		.calendar-dates.months.load {
+			position: absolute;
+			top: 0;
+			left: 0;
+			opacity: 0;
+			-webkit-transform: scale(1.5);
+			   -moz-transform: scale(1.5);
+				 -o-transform: scale(1.5);
+					transform: scale(1.5);
+		}
 .calendar-dates .cal-row { display: table-row; }
 .calendar-dates .date {
 	display: table-cell;
 	width: 14%;
 	text-align: center;
-	text-transform: uppercase;
+	color: rgb(50,50,50);
 }
 .calendar-dates .date a {
 	text-decoration: none;
-	color: inherit;
 	display: block;
-	padding: 25% 0;
+	color: inherit;
+	padding: 6px;
+    margin: 1px;
 	outline: none;
-	border-radius: 50%;
-	/*border: 2px solid transparent;*/
+	border: 2px solid transparent;
 	-webkit-transition: all .3s;
 	   -moz-transition: all .3s;
 		 -o-transition: all .3s;
 			transition: all .3s;
 }
-.calendar-dates .date a:hover,
-.calendar-dates .date a:focus { background-color: #E5E5E5; }
-.calendar-dates .date a:active { background-color: #D5D5D5; }
-.calendar-dates .date.current a { color: #2196F3; font-weight: bold; }
-.calendar-dates .date.pm,
-.calendar-dates .date.nm { color: #AAA; }
-.calendar-dates .date.selected a {
-	background-color: #2196f3;
-	color: #FFF;
-	/*color: #f44336;
-	font-weight: bold;*/
+    .calendar-dates .date.disabled a { cursor: not-allowed; }
+.calendar-dates .date:not(.disabled):not(.selected):not(.current) a:hover { border-color: rgb(100,100,100); }
+.calendar-dates .date:not(.disabled):not(.selected) a:active { border-color: rgb(50,50,50); }
+.calendar-dates .date.current a {
+	background-color: #1976d2;
+	color: #fff;
+	font-weight: bold;
 }
+	.calendar-dates .date.current a:hover { border-color: #0d47a1; }
+.calendar-dates .date.pm, .calendar-dates .date.nm { color: rgb(150,150,150); }
+.calendar-dates .date.selected a {
+	border-color: #1976d2;
+	color: #000;
+}
+	.calendar-dates .date.selected a:hover { border-color: #0d47a1; }
+	.calendar-dates .date.selected.current a {
+		background-color: #fff;
+		color: #1976d2;
+	}
 .calendar-dates .date.month a {
 	display: block;
-	padding: 40% 0;
+	padding: 24px 0;
 }
 @media (max-width: 350px) {
 	.calendar-wrapper {
