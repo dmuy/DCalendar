@@ -334,7 +334,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
  				data = $(that).data('dcalendar'),
  				options = $.extend({}, $.fn.dcalendar.defaults, $this.data(), typeof opts === 'object' && opts);
  			if(!data){
- 				$this.data('dcalendar', (data = new DCalendar(this, options)));
+ 				$this.data('dcalendar', (data = new DCalendar(this, options))).addClass('calendar');
  			}
  			if(typeof opts === 'string') data[opts]();
 		});
