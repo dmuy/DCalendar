@@ -3,6 +3,8 @@ DCalendar
 
 JQuery calendar plugin plus date picker for input fields.
 
+![alt text](http://dmuy.walng.com/img/plugins/cpicker.png "Date picker")
+
 ##How to use
 Make sure you include the jQuery library first.
 Include `dcalendar.picker.css` and `dcalendar.picker.js` in your html file:
