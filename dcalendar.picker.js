@@ -17,7 +17,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 	var months = ['January','February','March','April','May','June','July','August','September','October','November','December'],
 		short_months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
 		daysofweek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
-		short_days = ['Sun','Mon','Tues','Wed','Thu','Fri','Sat'],
+		short_days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
 		ex_keys = [9,112,113,114,115,116,117,118,119,120,121,122,123],
 
 		DCalendar = function(elem, options) {
@@ -270,6 +270,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 							if ((that.minDate && pmonth < min) || (that.maxDate && pmonth > max)) week[a].addClass('disabled');
 
 							if (pmonth.getTime() == that.selected.getTime()) week[a].addClass('selected');
+							if (pmonth.getTime() == today.getTime()) week[a].addClass('current');
 						}
 					} 
 					// Last week
@@ -284,6 +285,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 							if ((that.minDate && nmonth < min) || (that.maxDate && nmonth > max)) week[a].addClass('disabled');
 
 							if (nmonth.getTime() == that.selected.getTime()) week[a].addClass('selected');
+							if (nmonth.getTime() == today.getTime()) week[a].addClass('current');
 						}
 					}
 				}
@@ -373,13 +375,13 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		create : function(){
 			var that = this,
 				mode = that.options.mode,
+				theme = that.options.theme,
 				overlay = $('<div class="calendar-overlay"></div>'),
 				wrapper = $('<div class="calendar-wrapper load"></div>'),
 				cardhead = $('<section class="calendar-head-card"><span class="calendar-year"></span><span class="calendar-date-wrapper" title="Select current date."><span class="calendar-dayofweek"></span>, <span class="calendar-month"></span> <span class="calendar-date"></span></span></section>'),
 				container = $('<div class="calendar-container"></div>'),
 				calhead = $('<section class="calendar-top-selector"><span class="calendar-prev">&lsaquo;</span><span class="calendar-curr-month"></span><span class="calendar-next">&rsaquo;</span></section>'),
 				datesgrid = $('<section class="calendar-grid">'
-							// + '<div class="calendar-labels"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>'
 							+ '<div class="calendar-labels"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>'
 							+ '<div class="calendar-date-holder"><section class="calendar-dates"></section></div></section>');
 
@@ -391,6 +393,20 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 			wrapper.append(cardhead).append(container).appendTo(mode === 'calendar' ? that.elem : overlay);
 			that.calendar = mode === 'calendar' ? that.elem : wrapper;
+
+			switch(theme) {
+				case 'red':
+				case 'blue':
+				case 'green':
+				case 'purple':
+				case 'indigo':
+				case 'teal':
+					wrapper.attr('data-theme', theme);
+				break;
+				default:
+					wrapper.attr('data-theme', $.fn.dcalendar.defaults.theme);
+				break;
+			}
 
 			if(mode !== 'calendar') { 
 				wrapper.addClass('picker');
@@ -433,6 +449,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 	$.fn.dcalendar.defaults = {
 		mode : 'calendar',
 		format: 'mm/dd/yyyy',
+		theme: 'blue'
 	};
 
 	$.fn.dcalendar.Constructor = DCalendar;
