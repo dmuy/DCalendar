@@ -167,12 +167,6 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 			that.elem.trigger(e);
 		},
-		cleanUp : function (toRemove, currElem, cssClass) {
-			setTimeout(function () {
-				currElem.removeClass(cssClass);
-				toRemove.remove();
-			}, 250);
-		},
 		/* Gets list of months (for month view) */
 		getMonths : function () {
 			var that = this,
@@ -213,9 +207,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			cElem.empty().append(cells).addClass('months load').appendTo(container);
 			curr.addClass('hasmonths');
 			setTimeout(function () { cElem.removeClass('load'); }, 0);
-			setTimeout(function () {
-				curr.remove();
-			}, 250);
+			setTimeout(function () { curr.remove(); }, 300);
 		},
 		/* Gets days for month of 'newDate'*/
 		getDays : function (newDate, callback) {
@@ -308,7 +300,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		getNewMonth : function (dir, isTrigger) {
 			var that = this,
 				cal = that.calendar;
-				curr = cal.find('.calendar-dates:eq(0)'),
+				curr = cal.find('.calendar-dates:not(.left):not(.right)'),
 				lblTodayDay = cal.find('.calendar-dayofweek'),
 				lblTodayMonth = cal.find('.calendar-month'),
 				lblTodayDate = cal.find('.calendar-date'),
@@ -324,10 +316,12 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				that.getDays(that.date, function (dates) {
 					if (isTrigger) {
 						var cElem = curr.clone();
-						cElem.addClass(dir + ' load').empty().append(dates).prependTo(container);
-						curr.css({ marginLeft : (dir === 'left' ? '100%' : '-100%') });
-						setTimeout(function () { cElem.removeClass('load'); }, 0);
-						that.cleanUp(curr, cElem, dir);
+						cElem.addClass(dir).empty().append(dates)[dir == 'left' ? 'prependTo' : 'appendTo'](container);
+						setTimeout(function() {
+							curr.addClass(dir == 'left' ? 'right' : 'left');
+							cElem.removeClass(dir);
+							setTimeout(function () { cal.find('.calendar-dates.'+(dir == 'left' ? 'right' : 'left')+'').remove(); }, 300);
+						}, 0);
 					} else {
 						if (curr.hasClass('months')) {
 							var cElem = curr.clone();
@@ -336,7 +330,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 							curr.addClass('load');
 							setTimeout(function () { cElem.removeClass('hasmonths'); }, 0);
 							container.parent().removeAttr('style');
-							that.cleanUp(curr, cElem, 'months');
+							setTimeout(function () {
+								cElem.removeClass('months');
+								setTimeout(function () { cal.find('.calendar-dates.months').remove(); }, 300);
+							}, 0);
 						} else {
 							curr.append(dates);
 						}
