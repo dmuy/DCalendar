@@ -77,3 +77,15 @@ You can use this to get the new date value:
 </script>
 ```
 The above code will alert the new date selected. For example: `01-16-2016` or January 16, 2016
+
+##Themes
+You can specify the color theme of the date picker by adding `theme` option upon initialization:
+```
+<script>
+  $(document).ready(function(){
+    $('#datepicker').dcalendarpicker({theme: 'green'});
+  });
+</script>
+```
+Predefined themes are: `red`,`blue` (default), `green`, `purple`, `indigo` and `teal`.
+If you don't specify the theme to use or specify a theme which isn't there, the default theme will be used.
