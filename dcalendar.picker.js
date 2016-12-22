@@ -415,6 +415,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		},
 		/* Shows the calendar (date picker) */
 		show : function () {
+			$('body').attr('datepicker-display', 'on');
 			this.date = new Date(this.selected.getFullYear(), this.selected.getMonth(), this.selected.getDate());
 			this.selectedView();
 			this.calendar.parent().fadeIn('fast');
@@ -426,6 +427,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			that.calendar.addClass('load');
 			that.calendar.parent().fadeOut(function () {
 				// that.calendar.parent().remove();
+				$('body').removeAttr('datepicker-display', 'off');
 				if(callback) callback();
 				if(that.elem.is('input')) that.elem.focus();
 			});

@@ -6,6 +6,9 @@
  *
  * Date: Thursday, May 12 2016
  */
+
+ @import url('https://fonts.googleapis.com/css?family=Roboto');
+
 .calendar-overlay {
 	position: fixed;
 	top: 0; bottom: 0;
@@ -16,7 +19,7 @@
 	display: none;
 }
 .calendar-wrapper {
-	font-family: Roboto,'Segoe UI','Century Gothic',Calibri,Tahoma;
+	font-family: Roboto;
 	font-size: 14px;
 	position: relative;
 	width: 280px;
@@ -24,7 +27,7 @@
 	.calendar-wrapper.picker {
 		position: absolute;
 		left: 50%;
-		bottom: 16px;
+		bottom: 24px;
 		min-width: 280px;
 		opacity: 1;
 		overflow: hidden;
@@ -124,7 +127,7 @@
 	.calendar-grid .calendar-date-holder { 
 		position: relative;
 		width: 260px;
-		height: 222px;
+		height: 210px;
 		overflow: hidden;
 	}
 .calendar-date-holder .calendar-dates {
@@ -236,6 +239,10 @@
 .calendar-wrapper[data-theme='green'] .calendar-date-holder .calendar-dates .date.selected a:hover { border-color: #1b5e20; }
 .calendar-wrapper[data-theme='green'] .calendar-date-holder .calendar-dates .date.selected.current a { color: #388e3c; }
 /* End color theme */
+
+body[datepicker-display='on'] {
+	overflow: hidden;
+}
 
 @media (max-width: 350px) {
 	.calendar-wrapper {
