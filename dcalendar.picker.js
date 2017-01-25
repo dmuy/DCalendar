@@ -153,7 +153,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				month = months[monthIndex];
 				format = format.replace('mmmm', month);
 				firstD = format.indexOf('d');
-				firstY = format.indexOf('y');
+				firstY = firstY < firstM ? format.indexOf('y') : format.indexOf('y', format.indexOf(month) + month.length);
 			} else if (!isDayNoPadding && !isMonthNoPadding || (isDayNoPadding && !isMonthNoPadding && firstM < firstD)) {
 				month = date.substr(firstM, monthLength);
 			} else {
