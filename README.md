@@ -3,7 +3,7 @@ DCalendar
 
 JQuery calendar plugin plus date picker for input fields.
 
-![alt text](http://dmuy.walng.com/img/plugins/cpicker.png "Date picker")
+![alt text](https://lh3.googleusercontent.com/rdr-F4nAgfPuWVaYJPWyT-DifPHXOlD3drdnBQcsLABNWh7WKo-9KOTe7d_feYC3M9MiZEeQlzGrqj1qml6sq7UrBQOC8j4IHEqHockVXZgvKDgpz-OCSGlOcFUN9o5VjTUaWXB6GN4DgEhEGd9IhUjiHVQWPPiu7Sn1R8Exlxlly5I3fgFD_BidBCkl1wESzzeUOxiZ90o97mG2alR_b-794fQgmcOcm241jbAZqBOMlzlzTmdSnD_2FYEX1ZnC4qO4euqQK0xb3rfyMZITOLIIfNw4r8o2WW_L8aydVGO5Q-E8uI2ckBFmrMDkCBOAIzaa9_QxG9plcRaJ8SvdvwQRA6DIgjxgzk7m1Kt5gPB8SJDn761k_qGYXStWEfGt2TRM4RIpN0i9GHpQazz-pylGIa-G2ZW8ACFWshX2UOBFb9PyHq6z5WNXuYwv1y_XAeK8h89ZyGLE7uA-Fbpb9bgEtkCwlQhDoDV6jK5sLVTZ3Jrtr3hmBC58B9qfMyry9mkvKWI0Ea_811SEokJubSUhroiB_3-lXkTSAdV5SmIhBEIuf-88qkca-KnpxRtSIQpkdLQeNyUs0Y-2VwDZ8fJ1xO29V2En9fQqz7BuLAmzJbcmhO9b=w342-h424-no "Date picker")
 
 ##How to use
 Make sure you include the jQuery library first.
