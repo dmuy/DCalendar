@@ -5,7 +5,7 @@ JQuery calendar plugin plus date picker for input fields.
 
 ![alt text](https://lh3.googleusercontent.com/rdr-F4nAgfPuWVaYJPWyT-DifPHXOlD3drdnBQcsLABNWh7WKo-9KOTe7d_feYC3M9MiZEeQlzGrqj1qml6sq7UrBQOC8j4IHEqHockVXZgvKDgpz-OCSGlOcFUN9o5VjTUaWXB6GN4DgEhEGd9IhUjiHVQWPPiu7Sn1R8Exlxlly5I3fgFD_BidBCkl1wESzzeUOxiZ90o97mG2alR_b-794fQgmcOcm241jbAZqBOMlzlzTmdSnD_2FYEX1ZnC4qO4euqQK0xb3rfyMZITOLIIfNw4r8o2WW_L8aydVGO5Q-E8uI2ckBFmrMDkCBOAIzaa9_QxG9plcRaJ8SvdvwQRA6DIgjxgzk7m1Kt5gPB8SJDn761k_qGYXStWEfGt2TRM4RIpN0i9GHpQazz-pylGIa-G2ZW8ACFWshX2UOBFb9PyHq6z5WNXuYwv1y_XAeK8h89ZyGLE7uA-Fbpb9bgEtkCwlQhDoDV6jK5sLVTZ3Jrtr3hmBC58B9qfMyry9mkvKWI0Ea_811SEokJubSUhroiB_3-lXkTSAdV5SmIhBEIuf-88qkca-KnpxRtSIQpkdLQeNyUs0Y-2VwDZ8fJ1xO29V2En9fQqz7BuLAmzJbcmhO9b=w342-h424-no "Date picker")
 
-##How to use
+## How to use
 Make sure you include the jQuery library first.
 Include `dcalendar.picker.css` and `dcalendar.picker.js` in your html file:
 ```html
@@ -27,7 +27,7 @@ Then add this piece of code in your `script` tag:
 </script>
 ```
 
-##Formatting
+## Formatting
 The default string format of the date is `mm/dd/yyyy`. You can specify the format you want by adding a parameter on initialization:
 ```javascript
 <script>
@@ -50,7 +50,7 @@ You can specify other format you want, like `mmm dd, yyyy` which would output so
 | Year          | `yy`         | 16      |
 |               | `yyyy`       | 2016    |
 
-##Min and Max
+## Min and Max
 You can also specify the mininum and/or maximum date the user can select on othe date picker.
 Just specify `data-mindate` and/or `data-maxdate` attributes on your `input` element. The acceptable values for these attributes are `today` or a specific date using this format: `mm/dd/yyyy`:
 ```html
@@ -64,7 +64,7 @@ You can also specify the mininum and maximum date to create a specific date rang
 <input type="text" id="datepicker" data-mindate="1/1/2016" data-maxdate="2/1/2016"/>  //Dates enabled ranges from January 1 to February 1, 2016
 ```
 
-##Event
+## Event
 The event `datechanged` is fired after selection of date in the date picker.
 You can use this to get the new date value:
 ```javascript
@@ -78,7 +78,7 @@ You can use this to get the new date value:
 ```
 The above code will alert the new date selected. For example: `01-16-2016` or January 16, 2016
 
-##Themes
+## Themes
 You can specify the color theme of the date picker by adding `theme` option upon initialization:
 ```javascript
 <script>
