@@ -40,7 +40,7 @@
 
 .calendar .pMDate, .calendar .nMDate { color: #AAA; }
 .calendar .date, .calendar .pMDate, .calendar .nMDate, .calendar .month { cursor: pointer; }
-.calendar .date.disabled, .calendar .pMDate.disabled, .calendar .nMDate.disabled { cursor: not-allowed; }
+.calendar .date.disabled, .calendar .pMDate.disabled, .calendar .nMDate.disabled { cursor: not-allowed; color: #CCC; }
 .calendar .date:not(.disabled):hover, .calendar .pMDate:not(.disabled):hover, .calendar .nMDate:not(.disabled):hover, .calendar .month:hover { background-color: #E2E2E2; }
 .calendar .date:not(.disabled):active, .calendar .pMDate:not(.disabled):active, .calendar .nMDate:not(.disabled):active, .calendar .month:active { background-color: #22A7F0; color: #FFF; }
 .calendar .selected {

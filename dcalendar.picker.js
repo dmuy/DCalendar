@@ -1,5 +1,5 @@
 /* -- DO NOT REMOVE --
- * jQuery DCalendar 1.1 and DCalendar Picker 1.3 plugin
+ * jQuery DCalendar and DCalendar Picker 1.4 plugin
  * 
  * Author: Dionlee Uy
  * Email: dionleeuy@gmail.com
@@ -17,6 +17,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 	var months = ['January','February','March','April','May','June','July','August','September','October','November','December'],
 		short_months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
 		daysofweek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+		DCAL_DATA = 'dcalendar',
 
 		DCalendar = function(elem, options) {
 		    this.calendar = $(elem);
@@ -24,17 +25,13 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			this.options = options;
 
 			//current selected date, default is today if no value given
-			if(this.calendar.prev().val() === '') {
-				this.date = new Date();
-			} else {
-				var dateObj = this.reformatDate(this.calendar.prev().val());
-				this.date = isNaN(parseInt(dateObj.m)) ? new Date(dateObj.m + " " + dateObj.d + ", " + dateObj.y) : new Date(dateObj.y, dateObj.m - 1, dateObj.d);
-			}
-
+			this.date = this.calendar.prev().val() === '' ? new Date() : this.reformatDate(this.calendar.prev().val()).date;
 			this.viewMode = 'days';
 			this.selected = (this.date.getMonth() + 1) + "/" + this.date.getDate() + "/" + this.date.getFullYear();
 			this.minDate = this.calendar.prev().data('mindate');
 			this.maxDate = this.calendar.prev().data('maxdate');
+			this.rangeFromEl = this.calendar.prev().data('rangefrom');
+			this.rangeToEl = this.calendar.prev().data('rangeto');
 			
 			if(options.mode === 'calendar')
 				this.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr></thead>');
@@ -71,7 +68,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 					// Selected date
 					var selected = new Date(cyear, cmonth - 1, sdate);
-					if ((that.minDate && selected < min) || (that.maxDate && selected > max)) return;
+					if ((that.minDate && selected < min) || (that.maxDate && selected > max) || that.disabled(selected)) return;
 
 					that.selected = cmonth + '/' + sdate + '/' + cyear;
 
@@ -107,7 +104,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				that.create(that.viewMode);
 			}
 
-			this.create(this.viewMode);
+			if (this.options.mode === 'calendar') this.create(this.viewMode);
 		}
 
 	DCalendar.prototype = {
@@ -133,9 +130,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			that.calendar.trigger(e);
 		},
 
-		reformatDate : function (date) {
+		reformatDate : function (date, dateFormat) {
 			var that = this,
-				format = that.options.format,
+				format = typeof dateFormat === 'undefined' ? that.options.format : dateFormat,
 				dayLength = (format.match(/d/g) || []).length,
 				monthLength = (format.match(/m/g) || []).length,
 				yearLength = (format.match(/y/g) || []).length,
@@ -196,7 +193,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				year = date.substr(date.indexOf(before, firstY - 1) + 1, yearLength);
 			}
 
-			return { m: month, d: day, y: year };
+			return { m: month, d: day, y: year, date: isNaN(parseInt(month)) ? new Date(month + " " + day + ", " + year) : new Date(year, month - 1, day) };
 		},
 
 		formatDate : function (format) {
@@ -226,10 +223,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				selDate = that.selected.split('/'),
 				selected = new Date(selDate[2], selDate[0] -1, selDate[1]),
 				today = new Date(that.today.getFullYear(), that.today.getMonth(), that.today.getDate()),
-				min = that.minDate === "today" ? today : new Date(that.minDate),
-                max = that.maxDate === "today" ? today : new Date(that.maxDate);
+				min = that.minDate === "today" ? today : new Date(that.minDate), max = that.maxDate === "today" ? today : new Date(that.maxDate);
 
 			that.calendar.empty();
+
 			if(mode === "days") {
 				if(that.options.mode === 'calendar') {
 					that.tHead = $('<thead><tr><th id="prev">&lsaquo;</th><th colspan="5" id="currM"></th><th id="next">&rsaquo;</th></tr><tr><th>Su</th><th>Mo</th><th>Tu</th><th>We</th><th>Th</th><th>Fr</th><th>Sa</th></tr></thead>');
@@ -248,7 +245,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 						if(d.getTime() == today.getTime()) temp[dayOfWeek].attr('id', 'currDay');
 
-						if ((that.minDate && d < min) || (that.maxDate && d > max)) temp[dayOfWeek].addClass('disabled');
+						if ((that.minDate && d < min) || (that.maxDate && d > max) || that.disabled(d)) temp[dayOfWeek].addClass('disabled');
 
 						if(that.options.mode === 'datepicker' && d.getTime() == selected.getTime()) temp[dayOfWeek].addClass('selected');
 
@@ -273,7 +270,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 									temp[a].html('<span>' + (pDays--) + '</span>').addClass('pMDate');
 									
-									if ((that.minDate && p < min) || (that.maxDate && p > max)) temp[a].addClass('disabled');
+									if ((that.minDate && p < min) || (that.maxDate && p > max) || that.disabled(p)) temp[a].addClass('disabled');
 									if (that.options.mode === 'datepicker' && p.getTime() == selected.getTime()) temp[a].addClass('selected');
 								}
 							}
@@ -288,7 +285,8 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 									temp[a].html('<span>' + (nStartDate++) + '</span>').addClass('nMDate');
 									
-									if ((that.minDate && nextMonth < min) || (that.maxDate && nextMonth > max)) temp[a].addClass('disabled');
+									if ((that.minDate && nextMonth < min) || (that.maxDate && nextMonth > max) 
+										|| that.disabled(nextMonth)) temp[a].addClass('disabled');
 									if (that.options.mode === 'datepicker' && nextMonth.getTime() == selected.getTime()) temp[a].addClass('selected');
 								}
 							}
@@ -323,6 +321,32 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				var sysDate = "Today: " + daysofweek[that.today.getDay()] + ", "+ months[that.today.getMonth()] + " " + that.today.getDate() + ", " + that.today.getFullYear();
 				tBody.append('<tr><td colspan="4" id="today">' + sysDate + '</td></tr>').appendTo(that.calendar);
 			}
+		},
+
+		disabled: function (date) {
+			var that = this, rangeFrom = null, rangeTo = null, rangeMin = null, rangeMax = null;
+
+			if (that.rangeFromEl) {
+				var fromEl = $(that.rangeFromEl),
+					fromData = fromEl.next('.calendar').data(DCAL_DATA);
+					fromFormat = fromData.options.format,
+					fromVal = fromEl.val();
+
+				rangeFrom = that.reformatDate(fromVal, fromFormat).date;
+				rangeMin = fromData.minDate === "today" ? today : new Date(fromData.minDate);
+			}
+
+			if (that.rangeToEl) {
+				var toEl = $(that.rangeToEl),
+					toData = toEl.next('.calendar').data(DCAL_DATA);
+					toFormat = toData.options.format,
+					toVal = toEl.val();
+
+				rangeTo = that.reformatDate(toVal, toFormat).date;
+				rangeMax = toData.maxDate === "today" ? today : new Date(toData.maxDate);
+			}
+
+			return (rangeFrom && date < rangeFrom) || (rangeTo && date > rangeTo) || (rangeMin && date < rangeMin) || (rangeMax && date > rangeMax);
 		}
 	}
 
@@ -331,10 +355,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		return $(this).each(function(index, elem){
 			var that = this;
  			var $this = $(that),
- 				data = $(that).data('dcalendar'),
+ 				data = $(that).data(DCAL_DATA),
  				options = $.extend({}, $.fn.dcalendar.defaults, $this.data(), typeof opts === 'object' && opts);
  			if(!data){
- 				$this.data('dcalendar', (data = new DCalendar(this, options))).addClass('calendar');
+ 				$this.data(DCAL_DATA, (data = new DCalendar(this, options))).addClass('calendar');
  			}
  			if(typeof opts === 'string') data[opts]();
 		});
@@ -355,7 +379,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				cal = null;
 
 			if(typeof opts === 'string') {
-				var data = that.next('.calendar').data('dcalendar');
+				var data = that.next('.calendar').data(DCAL_DATA);
 				data[opts]();
 			} else {
 				cal = $('<table class="calendar"></table>');
@@ -391,6 +415,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				that.on('keydown', function(e){ if(e.which) return false; })
 					.on('focus', function(){
 						$('.datepicker').find('.calendar').not(cal).hide();
+						var calData = cal.data(DCAL_DATA);
+
+						calData.create(calData.viewMode);
 						cal.show();
 					})
 					.on('blur', function(){ if(!hovered) cal.hide(); });
