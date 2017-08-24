@@ -64,6 +64,18 @@ You can also specify the mininum and maximum date to create a specific date rang
 <input type="text" id="datepicker" data-mindate="1/1/2016" data-maxdate="2/1/2016"/>  //Dates enabled ranges from January 1 to February 1, 2016
 ```
 
+## Range From and To
+For situations where you have two inputs representing a date range (from & to), you can restrict the minimum and maximum date based on the values of the input elements - the maximum allowed date for date from (input element) is the value of date to (input element), and the minimum allowed date for date to is the value of the date from input.
+
+You can do this by adding the `data-rangefrom` and/or `data-rangeto` attributes. The value for these attributes is the id reference of the input element.
+
+Example:
+```html
+<input type="text" id="datefrom" data-rangeto="#dateto"/>   //Maximum enabled date is <= value of #dateto
+<input type="text" id="dateto" data-rangefrom="#datefrom" data-maxdate="today"/>  //Minimum enabled date is >= value of #datefrom
+```
+
+
 ## Event
 The event `datechanged` is fired after selection of date in the date picker.
 You can use this to get the new date value:
