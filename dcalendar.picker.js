@@ -1,5 +1,5 @@
 /* -- DO NOT REMOVE --
- * jQuery DCalendar 2.0 and DCalendar Picker 2.0 plugin
+ * jQuery DCalendar and DCalendar Picker 2.1 plugin
  * 
  * Author: Dionlee Uy
  * Email: dionleeuy@gmail.com
@@ -19,6 +19,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		daysofweek = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
 		short_days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
 		ex_keys = [9,112,113,114,115,116,117,118,119,120,121,122,123],
+		DCAL_DATA = 'dcalendar',
 
 		DCalendar = function(elem, options) {
 			this.elem = $(elem);
@@ -27,15 +28,12 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			this.today = new Date();	//current date
 
 			//current selected date, default is today if no value given
-			if(this.elem.val() === '') {
-				this.date = new Date();
-			} else {
-				var dateObj = this.reformatDate(this.elem.val());
-				this.date = isNaN(parseInt(dateObj.m)) ? new Date(dateObj.m + " " + dateObj.d + ", " + dateObj.y) : new Date(dateObj.y, dateObj.m - 1, dateObj.d);
-			}
+			this.date = this.elem.val() === '' ? new Date() : this.reformatDate(this.elem.val()).date;
 			this.viewMode = 'days';
 			this.minDate = this.elem.data('mindate');
 			this.maxDate = this.elem.data('maxdate');
+			this.rangeFromEl = this.elem.data('rangefrom');
+			this.rangeToEl = this.elem.data('rangeto');
 			
 			this.selected = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate());
 			
@@ -77,9 +75,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 	DCalendar.prototype = {
 		constructor : DCalendar,
 		/* Parses date string using default or specified format. */
-		reformatDate : function (date) {
+		reformatDate : function (date, dateFormat) {
 			var that = this,
-				format = that.options.format,
+				format = typeof dateFormat === 'undefined' ? that.options.format : dateFormat,
 				dayLength = (format.match(/d/g) || []).length,
 				monthLength = (format.match(/m/g) || []).length,
 				yearLength = (format.match(/y/g) || []).length,
@@ -92,9 +90,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 			// Get month on given date string using the format (default or specified)
 			if(isFullMonth) {
-				var monthIndex = -1;
-				$.each(months, function (i, month) { if (date.indexOf(month) >= 0) monthIndex = i; });
-				month = months[monthIndex];
+				var monthIdx = -1;
+				$.each(months, function (i, m) { if (date.indexOf(m) >= 0) monthIdx = i; });
+				month = months[monthIdx];
 				format = format.replace('mmmm', month);
 				firstD = format.indexOf('d');
 				firstY = firstY < firstM ? format.indexOf('y') : format.indexOf('y', format.indexOf(month) + month.length);
@@ -110,7 +108,6 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				} else if (firstM == 0) {
 					month = date.substring(0, date.indexOf(after, firstM));
 				} else {
-					console.log(date.indexOf(after, firstM));
 					month = date.substring(date.indexOf(before, firstM - 1) + 1, date.indexOf(after, firstM + 1));
 				}
 			}
@@ -141,7 +138,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				year = date.substr(date.indexOf(before, firstY - 1) + 1, yearLength);
 			}
 
-			return { m: month, d: day, y: year };
+			return { m: month, d: day, y: year, date: isNaN(parseInt(month)) ? new Date(month + " " + day + ", " + year) : new Date(year, month - 1, day) };
 		},
 		/* Returns formatted string representation of selected date */
 		formatDate : function (format) {
@@ -180,18 +177,13 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				currMonth = cal.find('.calendar-curr-month'),
 				container = cal.find('.calendar-date-holder'),
 				cElem = curr.clone(),
-				rows = [],
-				cells = [],
-				count = 0;
+				rows = [], cells = [], count = 0;
 
 			that.viewMode = 'months';
 			currMonth.text(that.date.getFullYear());
 			dayLabel.addClass('invis');
 			for (var i = 1; i < 4; i++) {
-				var row = [$("<span class='date month'></span>"),
-							$("<span class='date month'></span>"),
-							$("<span class='date month'></span>"),
-							$("<span class='date month'></span>")];
+				var row = [$("<span class='date month'></span>"), $("<span class='date month'></span>"), $("<span class='date month'></span>"), $("<span class='date month'></span>")];
 				for (var a = 0; a < 4; a++) {
 					row[a].html("<a href='javascript:void(0);'>" + short_months[count] + "</a>").attr('data-month', count);
 					count++;
@@ -206,7 +198,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			container.parent().height(container.parent().outerHeight(true));
 			cElem.empty().append(cells).addClass('months load').appendTo(container);
 			curr.addClass('hasmonths');
-			setTimeout(function () { cElem.removeClass('load'); }, 0);
+			setTimeout(function () { cElem.removeClass('load'); }, 10);
 			setTimeout(function () { curr.remove(); }, 300);
 		},
 		/* Gets days for month of 'newDate'*/
@@ -214,22 +206,35 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		    var that = this,
 				ndate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()),
 				today = new Date(that.today.getFullYear(), that.today.getMonth(), that.today.getDate()),
-                min = that.minDate === "today" ? today : new Date(that.minDate),
-                max = that.maxDate === "today" ? today : new Date(that.maxDate),
-				days = ndate.getDays(),
-				day = 1,
+                min = that.minDate === "today" ? today : new Date(that.minDate), max = that.maxDate === "today" ? today : new Date(that.maxDate),
+				days = ndate.getDays(), day = 1,
 		        d = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()),
-				nStartDate = 1,
-				rows = [],
-				dates = [];
+				nmStartDay = 1, weeks = [], dates = [],
+				rangeFrom = null, rangeTo = null, rangeMin = null, rangeMax = null;
+
+			if (that.rangeFromEl) {
+				var fromEl = $(that.rangeFromEl),
+					fromData = fromEl.data(DCAL_DATA);
+					fromFormat = fromData.options.format,
+					fromVal = fromEl.val();
+
+				rangeFrom = that.reformatDate(fromVal, fromFormat).date;
+				rangeMin = fromData.minDate === "today" ? today : new Date(fromData.minDate);
+			}
+
+			if (that.rangeToEl) {
+				var toEl = $(that.rangeToEl),
+					toData = toEl.data(DCAL_DATA);
+					toFormat = toData.options.format,
+					toVal = toEl.val();
+
+				rangeTo = that.reformatDate(toVal, toFormat).date;
+				rangeMax = toData.maxDate === "today" ? today : new Date(toData.maxDate);
+			}
 
 			for(var i = 1; i <= 6; i++){
-				var week = [$('<span class="date"></span>'),
-							$('<span class="date"></span>'),
-							$('<span class="date"></span>'),
-							$('<span class="date"></span>'),
-							$('<span class="date"></span>'),
-							$('<span class="date"></span>'),
+				var week = [$('<span class="date"></span>'), $('<span class="date"></span>'), $('<span class="date"></span>'),
+							$('<span class="date"></span>'), $('<span class="date"></span>'), $('<span class="date"></span>'),
 							$('<span class="date"></span>')];
 
 				while(day <= days) {
@@ -237,13 +242,14 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 					var dayOfWeek = d.getDay();
 
 					if (d.getTime() == today.getTime()) week[dayOfWeek].addClass('current');
-                    
-                    if ((that.minDate && d < min) || (that.maxDate && d > max)) week[dayOfWeek].addClass('disabled');
+
+                    if ((that.minDate && d < min) || (that.maxDate && d > max)
+                    	 || (rangeFrom && d < rangeFrom) || (rangeTo && d > rangeTo)
+                    	 || (rangeMin && d < rangeMin) || (rangeMax && d > rangeMax)) week[dayOfWeek].addClass('disabled');
 
 					if(i === 1 && dayOfWeek === 0){
 						break;
 					} else if (dayOfWeek < 6) {
-					    //console.log(that.selected);
 					    if (d.getTime() == that.selected.getTime()) week[dayOfWeek].addClass('selected');
 
 						week[dayOfWeek].html('<a href="javascript:void(0);">' + (day++) + '</a>');
@@ -258,40 +264,44 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 				if (i === 1 || i > 4) {
 					// First week
 				    if (i === 1) {
-				        var pmonth = new Date(newDate.getFullYear(), newDate.getMonth() - 1, 1);
-				        var pMonth = pmonth.getMonth(), pDays = 0;
-				        pDays = pmonth.getDays();
+				        var pmDate = new Date(newDate.getFullYear(), newDate.getMonth() - 1, 1);
+				        var pMonth = pmDate.getMonth(), pDays = 0;
+				        pDays = pmDate.getDays();
 						for (var a = 6; a >= 0; a--) {
 						    if (week[a].text() !== '') continue;
 
-						    pmonth.setDate(pDays);
+						    pmDate.setDate(pDays);
 						    week[a].html('<a href="javascript:void(0);">' + (pDays--) + '</a>').addClass('pm');
 
-							if ((that.minDate && pmonth < min) || (that.maxDate && pmonth > max)) week[a].addClass('disabled');
+							if ((that.minDate && pmDate < min) || (that.maxDate && pmDate > max)
+								|| (rangeFrom && pmDate < rangeFrom) || (rangeTo && pmDate > rangeTo)
+								|| (rangeMin && pmDate < rangeMin) || (rangeMax && pmDate > rangeMax)) week[a].addClass('disabled');
 
-							if (pmonth.getTime() == that.selected.getTime()) week[a].addClass('selected');
-							if (pmonth.getTime() == today.getTime()) week[a].addClass('current');
+							if (pmDate.getTime() == that.selected.getTime()) week[a].addClass('selected');
+							if (pmDate.getTime() == today.getTime()) week[a].addClass('current');
 						}
 					} 
 					// Last week
 					else if (i > 4) {
-					    var nmonth = new Date(d.getFullYear(), d.getMonth() + 1, 1);
+					    var nmDate = new Date(d.getFullYear(), d.getMonth() + 1, 1);
 						for (var a = 0; a <= 6; a++) {
 						    if (week[a].text() !== '') continue;
 
-						    nmonth.setDate(nStartDate);
-						    week[a].html('<a href="javascript:void(0);">' + (nStartDate++) + '</a>').addClass('nm');
+						    nmDate.setDate(nmStartDay);
+						    week[a].html('<a href="javascript:void(0);">' + (nmStartDay++) + '</a>').addClass('nm');
 
-							if ((that.minDate && nmonth < min) || (that.maxDate && nmonth > max)) week[a].addClass('disabled');
+							if ((that.minDate && nmDate < min) || (that.maxDate && nmDate > max)
+								|| (rangeFrom && nmDate < rangeFrom) || (rangeTo && nmDate > rangeTo)
+								|| (rangeMin && nmDate < rangeMin) || (rangeMax && nmDate > rangeMax)) week[a].addClass('disabled');
 
-							if (nmonth.getTime() == that.selected.getTime()) week[a].addClass('selected');
-							if (nmonth.getTime() == today.getTime()) week[a].addClass('current');
+							if (nmDate.getTime() == that.selected.getTime()) week[a].addClass('selected');
+							if (nmDate.getTime() == today.getTime()) week[a].addClass('current');
 						}
 					}
 				}
-				rows.push(week);
+				weeks.push(week);
 			}
-			$.each(rows, function(i, v){
+			$.each(weeks, function(i, v){
 				var row = $('<span class="cal-row"></span>'), l = v.length;
 				for(var i = 0; i < l; i++) { row.append(v[i]); }
 				dates.push(row);
@@ -315,32 +325,34 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 					that.date.setDate(1);
 					that.date.setMonth(that.date.getMonth() + ( dir === 'right' ? 1 : -1));
 				}
-				that.getDays(that.date, function (dates) {
-					if (isTrigger) {
-						var cElem = curr.clone();
-						cElem.addClass(dir).empty().append(dates)[dir == 'left' ? 'prependTo' : 'appendTo'](container);
-						setTimeout(function() {
-							curr.addClass(dir == 'left' ? 'right' : 'left');
-							cElem.removeClass(dir);
-							setTimeout(function () { cal.find('.calendar-dates.'+(dir == 'left' ? 'right' : 'left')+'').remove(); }, 300);
-						}, 0);
-					} else {
-						if (curr.hasClass('months')) {
+				if(isTrigger || that.options.mode === 'calendar' || curr.hasClass('months')) {
+					that.getDays(that.date, function (dates) {
+						if (isTrigger) {
 							var cElem = curr.clone();
-							$('.calendar-labels').removeClass('invis');
-							cElem.empty().append(dates).addClass('hasmonths').appendTo(container);
-							curr.addClass('load');
-							setTimeout(function () { cElem.removeClass('hasmonths'); }, 0);
-							container.parent().removeAttr('style');
-							setTimeout(function () {
-								cElem.removeClass('months');
-								setTimeout(function () { cal.find('.calendar-dates.months').remove(); }, 300);
-							}, 0);
+							cElem.addClass(dir).empty().append(dates)[dir == 'left' ? 'prependTo' : 'appendTo'](container);
+							setTimeout(function() {
+								curr.addClass(dir == 'left' ? 'right' : 'left');
+								cElem.removeClass(dir);
+								setTimeout(function () { cal.find('.calendar-dates.'+(dir == 'left' ? 'right' : 'left')+'').remove(); }, 300);
+							}, 10);
 						} else {
-							curr.append(dates);
+							if (curr.hasClass('months')) {
+								var cElem = curr.clone();
+								$('.calendar-labels').removeClass('invis');
+								cElem.empty().append(dates).addClass('hasmonths').appendTo(container);
+								curr.addClass('load');
+								setTimeout(function () { cElem.removeClass('hasmonths'); }, 10);
+								container.parent().removeAttr('style');
+								setTimeout(function () {
+									cElem.removeClass('months');
+									setTimeout(function () { cal.find('.calendar-dates.months').remove(); }, 300);
+								}, 10);
+							} else {
+								curr.append(dates);
+							}
 						}
-					}
-				});
+					});
+				}
 				
 				lblMonth.text(months[that.date.getMonth()] + ' ' + that.date.getFullYear());
 				
@@ -426,8 +438,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			var that = this;
 			that.calendar.addClass('load');
 			that.calendar.parent().fadeOut(function () {
-				// that.calendar.parent().remove();
-				$('body').removeAttr('datepicker-display', 'off');
+				$('body').removeAttr('datepicker-display');
 				if(callback) callback();
 				if(that.elem.is('input')) that.elem.focus();
 			});
@@ -439,10 +450,10 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		return $(this).each(function(index, elem){
 			var that = this;
  			var $this = $(that),
- 				data = $(that).data('dcalendar'),
+ 				data = $(that).data(DCAL_DATA),
  				options = $.extend({}, $.fn.dcalendar.defaults, $this.data(), typeof opts === 'object' && opts);
  			if(!data){
- 				$this.data('dcalendar', (data = new DCalendar(this, options)));
+ 				$this.data(DCAL_DATA, (data = new DCalendar(this, options)));
  			}
  			if(typeof opts === 'string') data[opts]();
 		});
@@ -451,7 +462,8 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 	$.fn.dcalendar.defaults = {
 		mode : 'calendar',
 		format: 'mm/dd/yyyy',
-		theme: 'blue'
+		theme: 'blue',
+		readOnly: true
 	};
 
 	$.fn.dcalendar.Constructor = DCalendar;
@@ -469,21 +481,21 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			}
 
 			that.on('click', function (e) {
-				var cal = that.data('dcalendar');
+				var cal = that.data(DCAL_DATA);
 				cal.show();
 				this.blur();
 			}).on('dateselected', function (e) {
-				var cal = that.data('dcalendar');
+				var cal = that.data(DCAL_DATA);
 				that.val(e.date).trigger('onchange');
 				cal.hide(function () {
 					that.trigger($.Event('datechanged', {date: e.date}));
 				});				
 			}).on('keydown', function(e){
-				if(ex_keys.indexOf(e.which) < 0) return false; 
+				if(ex_keys.indexOf(e.which) < 0 && that.data(DCAL_DATA).options.readOnly) return false; 
 			});
 			$(document).on('keydown', function (e) {
 				if(e.keyCode != 27) return;
-				that.data('dcalendar').hide();
+				that.data(DCAL_DATA).hide();
 			});
 		});
 	};
