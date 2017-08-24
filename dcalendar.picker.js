@@ -52,14 +52,17 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 			this.calendar.find('.calendar-next').click(function () { that.getNewMonth('right', true); });
 			this.calendar.find('.calendar-curr-month').click(function () { that.getMonths(); });
 		    this.calendar.find('.calendar-date-holder').on('click', '.calendar-dates .date:not(.date.month) a', function () {
-		    	var span = $(this).parent();
-		        if (span.hasClass('disabled')) return;
+		    	var span = $(this).parent(),
+		    		day = parseInt($(this).text()),
+					plus = span.hasClass('pm') ? -1 : span.hasClass('nm') ? 1 : 0,
+					selectedDate = new Date(that.date.getFullYear(), that.date.getMonth() + plus, day);
+				
+				if(that.disabledDate(selectedDate)) return;
+
+				that.selected = selectedDate;
 				that.calendar.find('.calendar-dates .date').removeClass('selected');
 				span.addClass('selected');
-				var day = parseInt($(this).text()),
-					plus = span.hasClass('pm') ? -1 : span.hasClass('nm') ? 1 : 0;
-				that.selected = new Date(that.date.getFullYear(), that.date.getMonth() + plus, day);
-				
+
 				//Trigger select event
 				that.selectDate();
 			}).on('click', '.calendar-dates .date.month a', function () {
@@ -164,6 +167,36 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 			that.elem.trigger(e);
 		},
+		/* Determines if date is disabled */
+		disabledDate: function (date) {
+			var that = this, rangeFrom = null, rangeTo = null, rangeMin = null, rangeMax = null, min = null, max = null;
+
+			if (that.minDate) min = that.minDate === "today" ? today : new Date(that.minDate);
+			if (that.maxDate) max = that.maxDate === "today" ? today : new Date(that.maxDate);
+
+			if (that.rangeFromEl) {
+				var fromEl = $(that.rangeFromEl),
+					fromData = fromEl.data(DCAL_DATA);
+					fromFormat = fromData.options.format,
+					fromVal = fromEl.val();
+
+				rangeFrom = that.reformatDate(fromVal, fromFormat).date;
+				rangeMin = fromData.minDate === "today" ? today : new Date(fromData.minDate);
+			}
+
+			if (that.rangeToEl) {
+				var toEl = $(that.rangeToEl),
+					toData = toEl.data(DCAL_DATA);
+					toFormat = toData.options.format,
+					toVal = toEl.val();
+
+				rangeTo = that.reformatDate(toVal, toFormat).date;
+				rangeMax = toData.maxDate === "today" ? today : new Date(toData.maxDate);
+			}
+
+			return (min && date < min) || (max && date > max) || (rangeFrom && date < rangeFrom) || (rangeTo && date > rangeTo) ||
+				(rangeMin && date < rangeMin) || (rangeMax && date > rangeMax);
+		},
 		/* Gets list of months (for month view) */
 		getMonths : function () {
 			var that = this,
@@ -206,31 +239,9 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 		    var that = this,
 				ndate = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()),
 				today = new Date(that.today.getFullYear(), that.today.getMonth(), that.today.getDate()),
-                min = that.minDate === "today" ? today : new Date(that.minDate), max = that.maxDate === "today" ? today : new Date(that.maxDate),
 				days = ndate.getDays(), day = 1,
 		        d = new Date(newDate.getFullYear(), newDate.getMonth(), newDate.getDate()),
-				nmStartDay = 1, weeks = [], dates = [],
-				rangeFrom = null, rangeTo = null, rangeMin = null, rangeMax = null;
-
-			if (that.rangeFromEl) {
-				var fromEl = $(that.rangeFromEl),
-					fromData = fromEl.data(DCAL_DATA);
-					fromFormat = fromData.options.format,
-					fromVal = fromEl.val();
-
-				rangeFrom = that.reformatDate(fromVal, fromFormat).date;
-				rangeMin = fromData.minDate === "today" ? today : new Date(fromData.minDate);
-			}
-
-			if (that.rangeToEl) {
-				var toEl = $(that.rangeToEl),
-					toData = toEl.data(DCAL_DATA);
-					toFormat = toData.options.format,
-					toVal = toEl.val();
-
-				rangeTo = that.reformatDate(toVal, toFormat).date;
-				rangeMax = toData.maxDate === "today" ? today : new Date(toData.maxDate);
-			}
+				nmStartDay = 1, weeks = [], dates = [];
 
 			for(var i = 1; i <= 6; i++){
 				var week = [$('<span class="date"></span>'), $('<span class="date"></span>'), $('<span class="date"></span>'),
@@ -243,9 +254,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 
 					if (d.getTime() == today.getTime()) week[dayOfWeek].addClass('current');
 
-                    if ((that.minDate && d < min) || (that.maxDate && d > max)
-                    	 || (rangeFrom && d < rangeFrom) || (rangeTo && d > rangeTo)
-                    	 || (rangeMin && d < rangeMin) || (rangeMax && d > rangeMax)) week[dayOfWeek].addClass('disabled');
+                    if (that.disabledDate(d)) week[dayOfWeek].addClass('disabled');
 
 					if(i === 1 && dayOfWeek === 0){
 						break;
@@ -273,9 +282,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 						    pmDate.setDate(pDays);
 						    week[a].html('<a href="javascript:void(0);">' + (pDays--) + '</a>').addClass('pm');
 
-							if ((that.minDate && pmDate < min) || (that.maxDate && pmDate > max)
-								|| (rangeFrom && pmDate < rangeFrom) || (rangeTo && pmDate > rangeTo)
-								|| (rangeMin && pmDate < rangeMin) || (rangeMax && pmDate > rangeMax)) week[a].addClass('disabled');
+							if (that.disabledDate(pmDate)) week[a].addClass('disabled');
 
 							if (pmDate.getTime() == that.selected.getTime()) week[a].addClass('selected');
 							if (pmDate.getTime() == today.getTime()) week[a].addClass('current');
@@ -290,9 +297,7 @@ if (typeof jQuery === 'undefined') { throw new Error('DCalendar.Picker: This plu
 						    nmDate.setDate(nmStartDay);
 						    week[a].html('<a href="javascript:void(0);">' + (nmStartDay++) + '</a>').addClass('nm');
 
-							if ((that.minDate && nmDate < min) || (that.maxDate && nmDate > max)
-								|| (rangeFrom && nmDate < rangeFrom) || (rangeTo && nmDate > rangeTo)
-								|| (rangeMin && nmDate < rangeMin) || (rangeMax && nmDate > rangeMax)) week[a].addClass('disabled');
+							if (that.disabledDate(nmDate)) week[a].addClass('disabled');
 
 							if (nmDate.getTime() == that.selected.getTime()) week[a].addClass('selected');
 							if (nmDate.getTime() == today.getTime()) week[a].addClass('current');
