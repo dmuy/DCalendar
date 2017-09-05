@@ -1,3 +1,5 @@
+You might want to checkout the [duDatepicker plugin](https://github.com/dmuy/duDatepicker).
+
 DCalendar
 =========
 
